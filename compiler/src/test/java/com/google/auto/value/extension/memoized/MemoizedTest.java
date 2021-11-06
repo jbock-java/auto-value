@@ -20,7 +20,6 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.auto.value.extension.memoized.MemoizedTest.HashCodeEqualsOptimization.EqualsCounter;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
-import com.google.errorprone.annotations.ImmutableTypeParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +92,7 @@ public class MemoizedTest {
         @javax.annotation.Nullable
         abstract String string();
 
-        abstract @org.checkerframework.checker.nullness.qual.Nullable String stringWithTypeAnnotation();
+        abstract  String stringWithTypeAnnotation();
 
         abstract HashCodeAndToStringCounter counter();
 
@@ -123,7 +122,7 @@ public class MemoizedTest {
         }
 
         @Memoized
-        @org.checkerframework.checker.nullness.qual.Nullable
+
         String nullableWithTypeAnnotation() {
             nullableWithTypeAnnotationCount++;
             return "nullable derived "
@@ -133,7 +132,7 @@ public class MemoizedTest {
         }
 
         @Memoized
-        @org.checkerframework.checker.nullness.qual.Nullable
+
         String returnsNullWithTypeAnnotation() {
             returnsNullWithTypeAnnotationCount++;
             return null;

@@ -15,6 +15,7 @@
  */
 package com.google.auto.value.processor;
 
+import com.google.common.truth.Truth8;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
@@ -22,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import javax.tools.JavaFileObject;
+
+import java.util.stream.Collectors;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
@@ -474,7 +477,7 @@ public class AutoAnnotationCompilationTest {
                 .hadErrorContaining("NotAutoAnnotation")
                 .inFile(erroneousJavaFileObject)
                 .onLineContaining("@NotAutoAnnotation");
-        assertThat(
+        Truth8.assertThat(
                 compilation.errors().stream()
                         .map(diag -> diag.getMessage(null))
                         .filter(m -> m.contains("static")))
