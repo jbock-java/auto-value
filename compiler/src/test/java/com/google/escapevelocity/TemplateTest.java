@@ -1104,7 +1104,7 @@ public class TemplateTest {
     @Test
     public void badBraceReference() {
         String template = "line 1\nline 2\nbar${foo.!}baz";
-        expectException(template, "Expected }, on line 3, at text starting: .!}baz");
+        expectException(template, "Expected }, on line 4, at text starting: .!}baz");
     }
 
     @Test
