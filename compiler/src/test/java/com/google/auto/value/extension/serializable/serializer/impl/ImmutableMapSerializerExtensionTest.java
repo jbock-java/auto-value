@@ -19,6 +19,7 @@ import com.google.auto.value.extension.serializable.serializer.interfaces.Serial
 import com.google.auto.value.extension.serializable.serializer.utils.CompilationAbstractTest;
 import com.google.auto.value.extension.serializable.serializer.utils.FakeSerializerFactory;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.truth.Truth8;
 import com.squareup.javapoet.CodeBlock;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public final class ImmutableMapSerializerExtensionTest extends CompilationAbstra
         Optional<Serializer> actualSerializer =
                 extension.getSerializer(typeMirror, fakeSerializerFactory, mockProcessingEnvironment);
 
-        assertThat(actualSerializer).isEmpty();
+        Truth8.assertThat(actualSerializer).isEmpty();
     }
 
     @Test
@@ -67,7 +68,7 @@ public final class ImmutableMapSerializerExtensionTest extends CompilationAbstra
         Optional<Serializer> actualSerializer =
                 extension.getSerializer(typeMirror, fakeSerializerFactory, mockProcessingEnvironment);
 
-        assertThat(actualSerializer).isEmpty();
+        Truth8.assertThat(actualSerializer).isEmpty();
     }
 
     @Test

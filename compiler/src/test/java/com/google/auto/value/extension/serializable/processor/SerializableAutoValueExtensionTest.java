@@ -20,6 +20,7 @@ import com.google.auto.value.extension.serializable.SerializableAutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.SerializableTester;
+import com.google.common.truth.Truth8;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -83,8 +84,8 @@ public final class SerializableAutoValueExtensionTest {
 
         assertThat(autoValue.a()).isEqualTo(A);
         assertThat(autoValue.b()).isEqualTo(B);
-        assertThat(autoValue.optionalC()).hasValue(C);
-        assertThat(autoValue.optionalD()).hasValue(D);
+        Truth8.assertThat(autoValue.optionalC()).hasValue(C);
+        Truth8.assertThat(autoValue.optionalD()).hasValue(D);
     }
 
     @Test
@@ -94,8 +95,8 @@ public final class SerializableAutoValueExtensionTest {
 
         assertThat(autoValue.a()).isEqualTo(A);
         assertThat(autoValue.b()).isEqualTo(B);
-        assertThat(autoValue.optionalC()).hasValue(C);
-        assertThat(autoValue.optionalD()).isEmpty();
+        Truth8.assertThat(autoValue.optionalC()).hasValue(C);
+        Truth8.assertThat(autoValue.optionalD()).isEmpty();
     }
 
     @Test
@@ -105,8 +106,8 @@ public final class SerializableAutoValueExtensionTest {
 
         assertThat(autoValue.a()).isEqualTo(A);
         assertThat(autoValue.b()).isEqualTo(B);
-        assertThat(autoValue.optionalC()).isEmpty();
-        assertThat(autoValue.optionalD()).isEmpty();
+        Truth8.assertThat(autoValue.optionalC()).isEmpty();
+        Truth8.assertThat(autoValue.optionalD()).isEmpty();
     }
 
     @Test
@@ -243,7 +244,7 @@ public final class SerializableAutoValueExtensionTest {
         abstract Optional<S> optionalB();
 
         static <T extends Serializable, S> Builder<T, S> builder() {
-            return new AutoValue_SerializableAutoValueExtensionTest_HasTypeParameters.Builder<>();
+            return new $AutoValue_SerializableAutoValueExtensionTest_HasTypeParameters.Builder<>();
         }
 
         @AutoValue.Builder
@@ -262,7 +263,7 @@ public final class SerializableAutoValueExtensionTest {
                 HasTypeParameters.<String, Integer>builder().setA(A).setOptionalB(B).build();
 
         assertThat(autoValue.a()).isEqualTo(A);
-        assertThat(autoValue.optionalB()).hasValue(B);
+        Truth8.assertThat(autoValue.optionalB()).hasValue(B);
     }
 
     @Test
@@ -271,7 +272,7 @@ public final class SerializableAutoValueExtensionTest {
                 HasTypeParameters.<String, Integer>builder().setA(A).build();
 
         assertThat(autoValue.a()).isEqualTo(A);
-        assertThat(autoValue.optionalB()).isEmpty();
+        Truth8.assertThat(autoValue.optionalB()).isEmpty();
     }
 
     @Test

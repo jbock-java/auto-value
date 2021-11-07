@@ -44,6 +44,7 @@ dependencies {
     implementation('io.github.jbock-java:auto-common:1.2.0')
     implementation('io.github.jbock-java:javapoet:1.14')
     testImplementation('com.google.errorprone:error_prone_type_annotations:2.10.0')
+    testImplementation('com.google.guava:guava-testlib:31.0.1-jre')
     testImplementation('org.checkerframework:checker-qual:3.19.0')
     testImplementation('org.apache.velocity:velocity:1.7')
     testImplementation('org.junit.jupiter:junit-jupiter:5.8.1')
