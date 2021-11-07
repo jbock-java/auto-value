@@ -33,6 +33,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
@@ -182,17 +183,17 @@ public class PropertyAnnotationsTest {
         }
 
         OutputFileBuilder addFieldAnnotations(String... annotations) {
-            this.fieldAnnotations.addAll(ImmutableList.copyOf(annotations));
+            this.fieldAnnotations.addAll(ImmutableList.copyOf(annotations).stream().map(s -> "  " + s).collect(Collectors.toList()));
             return this;
         }
 
         OutputFileBuilder addMethodAnnotations(String... innerTypes) {
-            this.methodAnnotations.addAll(ImmutableList.copyOf(innerTypes));
+            this.methodAnnotations.addAll(ImmutableList.copyOf(innerTypes).stream().map(s -> "  " + s).collect(Collectors.toList()));
             return this;
         }
 
         OutputFileBuilder addMethodAnnotations(Iterable<String> innerTypes) {
-            this.methodAnnotations.addAll(ImmutableList.copyOf(innerTypes));
+            this.methodAnnotations.addAll(ImmutableList.copyOf(innerTypes).stream().map(s -> "  " + s).collect(Collectors.toList()));
             return this;
         }
 
@@ -210,27 +211,33 @@ public class PropertyAnnotationsTest {
                             .add(
                                     "",
                                     "@Generated(\"" + AutoValueProcessor.class.getName() + "\")",
-                                    "final class AutoValue_Baz extends Baz {")
+                                    "final class AutoValue_Baz extends Baz {",
+                                    "")
                             .addAll(fieldAnnotations)
                             .add(
                                     "  private final int buh;",
-                                    "  AutoValue_Baz(" + nullable + "int buh) {",
+                                    "",
+                                    "  AutoValue_Baz(",
+                                    "      " + nullable + "int buh) {",
                                     "    this.buh = buh;",
                                     "  }",
                                     "")
                             .addAll(methodAnnotations)
                             .add(
-                                    "  @Override public int buh() {",
+                                    "  @Override",
+                                    "  public int buh() {",
                                     "    return buh;",
                                     "  }",
                                     "",
-                                    "  @Override public String toString() {",
+                                    "  @Override",
+                                    "  public String toString() {",
                                     "    return \"Baz{\"",
                                     "        + \"buh=\" + buh",
                                     "        + \"}\";",
                                     "  }",
                                     "",
-                                    "  @Override public boolean equals(Object o) {",
+                                    "  @Override",
+                                    "  public boolean equals(Object o) {",
                                     "    if (o == this) {",
                                     "      return true;",
                                     "    }",
@@ -241,12 +248,14 @@ public class PropertyAnnotationsTest {
                                     "    return false;",
                                     "  }",
                                     "",
-                                    "  @Override public int hashCode() {",
+                                    "  @Override",
+                                    "  public int hashCode() {",
                                     "    int h$ = 1;",
                                     "    h$ *= 1000003;",
                                     "    h$ ^= buh;",
                                     "    return h$;",
                                     "  }",
+                                    "",
                                     "}")
                             .build();
 
@@ -329,8 +338,8 @@ public class PropertyAnnotationsTest {
     public void testDecimalValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
-                ImmutableList.of(TEST_ANNOTATION + "(testDouble = 1.2d, testFloat = 3.4f)"),
-                ImmutableList.of(TEST_ANNOTATION + "(testDouble = 1.2d, testFloat = 3.4f)"));
+                ImmutableList.of(TEST_ANNOTATION + "(testDouble = 1.2, testFloat = 3.4F)"),
+                ImmutableList.of(TEST_ANNOTATION + "(testDouble = 1.2, testFloat = 3.4F)"));
     }
 
     @Test
@@ -379,10 +388,10 @@ public class PropertyAnnotationsTest {
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
                         TEST_ANNOTATION
-                                + "(testAnnotation = @PropertyAnnotationsTest.OtherAnnotation(foo=999))"),
+                                + "(testAnnotation = @PropertyAnnotationsTest.OtherAnnotation(foo = 999))"),
                 ImmutableList.of(
                         TEST_ANNOTATION
-                                + "(testAnnotation = @PropertyAnnotationsTest.OtherAnnotation(foo=999))"));
+                                + "(testAnnotation = @PropertyAnnotationsTest.OtherAnnotation(foo = 999))"));
     }
 
     @Test
@@ -410,9 +419,9 @@ public class PropertyAnnotationsTest {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
-                        TEST_ARRAY_ANNOTATION + "(testDoubles = {1.2d, 3.4d}, testFloats = {5.6f, 7.8f})"),
+                        TEST_ARRAY_ANNOTATION + "(testDoubles = {1.2, 3.4}, testFloats = {5.6F, 7.8F})"),
                 ImmutableList.of(
-                        TEST_ARRAY_ANNOTATION + "(testDoubles = {1.2d, 3.4d}, testFloats = {5.6f, 7.8f})"));
+                        TEST_ARRAY_ANNOTATION + "(testDoubles = {1.2, 3.4}, testFloats = {5.6F, 7.8F})"));
     }
 
     @Test
@@ -422,11 +431,11 @@ public class PropertyAnnotationsTest {
                 ImmutableList.of(
                         TEST_ARRAY_ANNOTATION
                                 + "(testBooleans = {false, false},"
-                                + " testStrings = {\"aaa\", \"bbb\"}, testChars={'x', 'y'})"),
+                                + " testStrings = {\"aaa\", \"bbb\"}, testChars = {'x', 'y'})"),
                 ImmutableList.of(
                         TEST_ARRAY_ANNOTATION
                                 + "(testBooleans = {false, false},"
-                                + " testStrings = {\"aaa\", \"bbb\"}, testChars={'x', 'y'})"));
+                                + " testStrings = {\"aaa\", \"bbb\"}, testChars = {'x', 'y'})"));
     }
 
     @Test
