@@ -20,6 +20,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.auto.value.extension.memoized.MemoizedTest.HashCodeEqualsOptimization.EqualsCounter;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
+import com.google.errorprone.annotations.ImmutableTypeParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
