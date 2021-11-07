@@ -21,7 +21,6 @@ import com.google.auto.value.extension.memoized.processor.MemoizeExtension;
 import com.google.auto.value.extension.serializable.processor.SerializableAutoValueExtension;
 import com.google.auto.value.extension.toprettystring.processor.ToPrettyStringExtension;
 import com.google.common.collect.ImmutableList;
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -55,7 +54,7 @@ public class IncrementalExtensionTest {
 
         AutoValueProcessor processor = new AutoValueProcessor(builtInExtensions);
         assertThat(processor.getSupportedOptions())
-                .contains(IncrementalAnnotationProcessorType.ISOLATING.getProcessorOption());
+                .contains("org.gradle.annotation.processing.isolating");
     }
 
     @Test
@@ -72,7 +71,7 @@ public class IncrementalExtensionTest {
 
         AutoValueProcessor processor = new AutoValueProcessor(extensions);
         assertThat(processor.getSupportedOptions())
-                .doesNotContain(IncrementalAnnotationProcessorType.ISOLATING.getProcessorOption());
+                .doesNotContain("org.gradle.annotation.processing.isolating");
     }
 
     @Test
@@ -89,7 +88,7 @@ public class IncrementalExtensionTest {
 
         AutoValueProcessor processor = new AutoValueProcessor(extensions);
         assertThat(processor.getSupportedOptions())
-                .contains(IncrementalAnnotationProcessorType.ISOLATING.getProcessorOption());
+                .contains("org.gradle.annotation.processing.isolating");
     }
 
     // Extensions are "UNKNOWN" by default.

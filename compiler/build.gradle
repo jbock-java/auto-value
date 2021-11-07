@@ -26,7 +26,6 @@ javadoc {
 
 repositories {
     mavenCentral()
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/iogithubjbock-java-1104' }
 }
 
 tasks.withType(AbstractArchiveTask) {
@@ -52,8 +51,7 @@ dependencies {
     testImplementation('io.github.jbock-java:compile-testing:0.19.0')
     testImplementation('io.github.jbock-java:truth:1.1.3.0')
     testImplementation('org.mockito:mockito-core:4.0.0')
-    testImplementation('com.google.jimfs:jimfs:1.2')
-    testImplementation('org.eclipse.jdt.core.compiler:ecj:4.6.1')
+    testImplementation('org.hamcrest:hamcrest-core:2.2')
 }
 
 jar {

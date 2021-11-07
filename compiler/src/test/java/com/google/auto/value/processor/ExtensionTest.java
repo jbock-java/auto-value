@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.Truth;
+import com.google.common.truth.Truth8;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
@@ -937,7 +938,7 @@ public class ExtensionTest {
                         "}");
         ContextChecker checker =
                 context -> {
-                    assertThat(context.builder()).isEmpty();
+                    Truth8.assertThat(context.builder()).isEmpty();
                     Map<String, TypeMirror> propertyTypes = context.propertyTypes();
                     assertThat(propertyTypes.keySet()).containsExactly("thing", "list");
                     TypeMirror thingType = propertyTypes.get("thing");
@@ -1028,7 +1029,7 @@ public class ExtensionTest {
                         "}");
         ContextChecker checker =
                 context -> {
-                    assertThat(context.builder()).isPresent();
+                    Truth8.assertThat(context.builder()).isPresent();
                     BuilderContext builderContext = context.builder().get();
 
                     assertThat(builderContext.builderType().getQualifiedName().toString())
@@ -1045,7 +1046,7 @@ public class ExtensionTest {
                     assertThat(toBuilderMethod.getSimpleName().toString()).isEqualTo("toBuilder");
 
                     Optional<ExecutableElement> buildMethod = builderContext.buildMethod();
-                    assertThat(buildMethod).isPresent();
+                    Truth8.assertThat(buildMethod).isPresent();
                     assertThat(buildMethod.get().getSimpleName().toString()).isEqualTo("build");
                     assertThat(buildMethod.get().getParameters()).isEmpty();
                     assertThat(buildMethod.get().getReturnType().toString()).isEqualTo("foo.bar.Baz");
@@ -1115,7 +1116,7 @@ public class ExtensionTest {
                         "}");
         ContextChecker checker =
                 context -> {
-                    assertThat(context.builder()).isPresent();
+                    Truth8.assertThat(context.builder()).isPresent();
                     BuilderContext builderContext = context.builder().get();
 
                     assertThat(builderContext.builderType().getQualifiedName().toString())
@@ -1132,7 +1133,7 @@ public class ExtensionTest {
                     assertThat(toBuilderMethod.getSimpleName().toString()).isEqualTo("toBuilder");
 
                     Optional<ExecutableElement> buildMethod = builderContext.buildMethod();
-                    assertThat(buildMethod).isPresent();
+                    Truth8.assertThat(buildMethod).isPresent();
                     assertThat(buildMethod.get().getSimpleName().toString()).isEqualTo("build");
                     assertThat(buildMethod.get().getParameters()).isEmpty();
                     assertThat(buildMethod.get().getReturnType().toString()).isEqualTo("BuiltT");
@@ -1180,11 +1181,11 @@ public class ExtensionTest {
                         "}");
         ContextChecker checker =
                 context -> {
-                    assertThat(context.builder()).isPresent();
+                    Truth8.assertThat(context.builder()).isPresent();
                     BuilderContext builderContext = context.builder().get();
                     assertThat(builderContext.builderMethods()).isEmpty();
                     assertThat(builderContext.toBuilderMethods()).isEmpty();
-                    assertThat(builderContext.buildMethod()).isEmpty();
+                    Truth8.assertThat(builderContext.buildMethod()).isEmpty();
                     assertThat(builderContext.autoBuildMethod().getSimpleName().toString())
                             .isEqualTo("oddBuild");
 
@@ -1232,7 +1233,7 @@ public class ExtensionTest {
         // NullPointerException when calling .setters() in the checker.
         ContextChecker checker =
                 context -> {
-                    assertThat(context.builder()).isPresent();
+                    Truth8.assertThat(context.builder()).isPresent();
                     assertThat(context.builder().get().setters()).isEmpty();
                 };
         ContextCheckingExtension extension = new ContextCheckingExtension(checker);
