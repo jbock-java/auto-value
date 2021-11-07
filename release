@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 die () {
     echo "$*"
@@ -20,8 +19,8 @@ if [[ -z "$VERSION" ]]; then
 fi
 
 if [[ "compiler" == "$MODULE" ]]; then
- greppy=$(./gradlew compiler:dependencies --configuration compileClasspath | fgrep "dapper:$VERSION")
- test -z "$greppy" && die "compiler should depend on dapper:$VERSION"
+ greppy=$(./gradlew compiler:dependencies --configuration compileClasspath | fgrep "auto-value-annotations:$VERSION")
+ test -z "$greppy" && die "compiler should depend on auto-value-annotations:$VERSION"
 fi
 
 git pull origin $(git rev-parse --abbrev-ref HEAD)
