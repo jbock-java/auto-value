@@ -41,7 +41,7 @@ import java.util.Collection;
  *
  * <p>{@code @ToPrettyString} is valid on overridden {@code toString()} and other methods alike.
  *
- * <h3>Example</h3>
+ * <p><b>Example</b>
  *
  * <pre>
  *   {@code @AutoValue}
