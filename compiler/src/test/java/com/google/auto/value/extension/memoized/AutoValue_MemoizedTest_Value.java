@@ -1,8 +1,8 @@
 package com.google.auto.value.extension.memoized;
 
 import com.google.errorprone.annotations.concurrent.LazyInit;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 
 @Generated("com.google.auto.value.extension.memoized.processor.MemoizeExtension")
@@ -37,11 +37,19 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
 
   @LazyInit
   @SuppressWarnings("Immutable")
-  private transient volatile String nullableWithTypeAnnotation;
+  private transient volatile @Nullable String nullableWithTypeAnnotation;
 
   @LazyInit
   @SuppressWarnings("Immutable")
-  private transient volatile String returnsNullWithTypeAnnotation;
+  private transient volatile boolean nullableWithTypeAnnotation$Memoized;
+
+  @LazyInit
+  @SuppressWarnings("Immutable")
+  private transient volatile @Nullable String returnsNullWithTypeAnnotation;
+
+  @LazyInit
+  @SuppressWarnings("Immutable")
+  private transient volatile boolean returnsNullWithTypeAnnotation$Memoized;
 
   @LazyInit
   @SuppressWarnings("Immutable")
@@ -63,7 +71,7 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
   @SuppressWarnings("Immutable")
   private transient volatile String toString;
 
-  AutoValue_MemoizedTest_Value(String string$, String stringWithTypeAnnotation$,
+  AutoValue_MemoizedTest_Value(String string$, @Nullable String stringWithTypeAnnotation$,
       MemoizedTest.HashCodeAndToStringCounter counter$) {
     super(string$, stringWithTypeAnnotation$, counter$);
   }
@@ -97,7 +105,7 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
   }
 
   @Override
-  @Nullable
+  @javax.annotation.Nullable
   String nullable() {
     if (!nullable$Memoized) {
       synchronized (this) {
@@ -111,7 +119,7 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
   }
 
   @Override
-  @Nullable
+  @javax.annotation.Nullable
   String returnsNull() {
     if (!returnsNull$Memoized) {
       synchronized (this) {
@@ -125,14 +133,12 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
   }
 
   @Override
-  String nullableWithTypeAnnotation() {
-    if (nullableWithTypeAnnotation == null) {
+  @Nullable String nullableWithTypeAnnotation() {
+    if (!nullableWithTypeAnnotation$Memoized) {
       synchronized (this) {
-        if (nullableWithTypeAnnotation == null) {
+        if (!nullableWithTypeAnnotation$Memoized) {
           nullableWithTypeAnnotation = super.nullableWithTypeAnnotation();
-          if (nullableWithTypeAnnotation == null) {
-            throw new NullPointerException("nullableWithTypeAnnotation() cannot return null");
-          }
+          nullableWithTypeAnnotation$Memoized = true;
         }
       }
     }
@@ -140,14 +146,12 @@ final class AutoValue_MemoizedTest_Value extends $AutoValue_MemoizedTest_Value {
   }
 
   @Override
-  String returnsNullWithTypeAnnotation() {
-    if (returnsNullWithTypeAnnotation == null) {
+  @Nullable String returnsNullWithTypeAnnotation() {
+    if (!returnsNullWithTypeAnnotation$Memoized) {
       synchronized (this) {
-        if (returnsNullWithTypeAnnotation == null) {
+        if (!returnsNullWithTypeAnnotation$Memoized) {
           returnsNullWithTypeAnnotation = super.returnsNullWithTypeAnnotation();
-          if (returnsNullWithTypeAnnotation == null) {
-            throw new NullPointerException("returnsNullWithTypeAnnotation() cannot return null");
-          }
+          returnsNullWithTypeAnnotation$Memoized = true;
         }
       }
     }

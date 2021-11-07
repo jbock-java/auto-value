@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.Reflection;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -31,6 +32,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -40,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * Tests that {@link AutoValueProcessor} works even if run in a context where the {@code @Generated}
@@ -181,7 +184,7 @@ public class GeneratedDoesNotExistTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -195,9 +198,8 @@ public class GeneratedDoesNotExistTest {
                         "    return new AutoValue_Baz();",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         "final class AutoValue_Baz extends Baz {",
@@ -223,7 +225,7 @@ public class GeneratedDoesNotExistTest {
                         "    int h$ = 1;",
                         "    return h$;",
                         "  }",
-                        "}");
+                        "}"};
         Set<String> ignoredGenerated = ConcurrentHashMap.newKeySet();
         Processor autoValueProcessor = new AutoValueProcessor();
         ProcessorHandler handler = new ProcessorHandler(autoValueProcessor, ignoredGenerated);
@@ -234,9 +236,9 @@ public class GeneratedDoesNotExistTest {
                         .withProcessors(noGeneratedProcessor)
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
         assertThat(ignoredGenerated).containsExactly(expectedAnnotation);
     }
 }

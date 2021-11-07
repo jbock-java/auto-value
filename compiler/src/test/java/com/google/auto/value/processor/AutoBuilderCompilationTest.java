@@ -17,39 +17,47 @@ package com.google.auto.value.processor;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import javax.tools.JavaFileObject;
 
+import java.io.IOException;
+
 import static com.google.common.base.StandardSystemProperty.JAVA_SPECIFICATION_VERSION;
 import static com.google.common.truth.TruthJUnit.assume;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(JUnit4.class)
 public final class AutoBuilderCompilationTest {
-    private static final JavaFileObject EXPECTED_SIMPLE_OUTPUT =
-            JavaFileObjects.forSourceLines(
-                    "foo.bar.AutoBuilder_Baz_Builder",
+    private static final String[] EXPECTED_SIMPLE_OUTPUT =
+            new String[]{
                     "package foo.bar;",
                     "",
                     GeneratedImport.importGeneratedAnnotationType(),
                     "",
                     "@Generated(\"" + AutoBuilderProcessor.class.getName() + "\")",
                     "class AutoBuilder_Baz_Builder implements Baz.Builder {",
+                    "",
                     "  private Integer anInt;",
+                    "",
                     "  private String aString;",
                     "",
-                    "  AutoBuilder_Baz_Builder() {}",
+                    "  AutoBuilder_Baz_Builder() {",
+                    "  }",
                     "",
-                    "  @Override public Baz.Builder setAnInt(int anInt) {",
+                    "  @Override",
+                    "  public Baz.Builder setAnInt(int anInt) {",
                     "    this.anInt = anInt;",
                     "    return this;",
                     "  }",
                     "",
-                    "  @Override public Baz.Builder setAString(String aString) {",
+                    "  @Override",
+                    "  public Baz.Builder setAString(String aString) {",
                     "    if (aString == null) {",
                     "      throw new NullPointerException(\"Null aString\");",
                     "    }",
@@ -74,10 +82,10 @@ public final class AutoBuilderCompilationTest {
                     "        this.anInt,",
                     "        this.aString);",
                     "  }",
-                    "}");
+                    "}"};
 
     @Test
-    public void simpleSuccess() {
+    public void simpleSuccess() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -118,13 +126,13 @@ public final class AutoBuilderCompilationTest {
                         .withProcessors(new AutoBuilderProcessor())
                         .withOptions("-Acom.google.auto.value.AutoBuilderIsUnstable")
                         .compile(javaFileObject);
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoBuilder_Baz_Builder")
-                .hasSourceEquivalentTo(EXPECTED_SIMPLE_OUTPUT);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoBuilder_Baz_Builder")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(EXPECTED_SIMPLE_OUTPUT));
     }
 
     @Test
-    public void simpleRecord() {
+    public void simpleRecord() throws IOException {
         double version = Double.parseDouble(JAVA_SPECIFICATION_VERSION.value());
         assume().that(version).isAtLeast(16.0);
         JavaFileObject javaFileObject =
@@ -151,9 +159,9 @@ public final class AutoBuilderCompilationTest {
                         .withProcessors(new AutoBuilderProcessor())
                         .withOptions("-Acom.google.auto.value.AutoBuilderIsUnstable")
                         .compile(javaFileObject);
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoBuilder_Baz_Builder")
-                .hasSourceEquivalentTo(EXPECTED_SIMPLE_OUTPUT);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoBuilder_Baz_Builder")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(EXPECTED_SIMPLE_OUTPUT));
     }
 
     @Test

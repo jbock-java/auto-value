@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.truth.Expect;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,7 @@ import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.CompilationSubject.compilations;
 import static com.google.testing.compile.Compiler.javac;
 import static java.util.stream.Collectors.joining;
+import static org.hamcrest.CoreMatchers.is;
 
 /** @author emcmanus@google.com (Éamonn McManus) */
 @RunWith(JUnit4.class)
@@ -56,7 +58,7 @@ public class AutoValueCompilationTest {
     public final Expect expect = Expect.create();
 
     @Test
-    public void simpleSuccess() {
+    public void simpleSuccess() throws IOException {
         // Positive test case that ensures we generate the expected code for at least one case.
         // Most AutoValue code-generation tests are functional, meaning that we check that the generated
         // code does the right thing rather than checking what it looks like, but this test checks that
@@ -76,9 +78,8 @@ public class AutoValueCompilationTest {
                         "    return new AutoValue_Baz(buh);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         GeneratedImport.importGeneratedAnnotationType(),
@@ -118,19 +119,19 @@ public class AutoValueCompilationTest {
                         "    h$ ^= (int) ((buh >>> 32) ^ buh);",
                         "    return h$;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void importTwoWays() {
+    public void importTwoWays() throws IOException {
         // Test that referring to the same class in two different ways does not confuse the import logic
         // into thinking it is two different classes and that therefore it can't import. The code here
         // is nonsensical but successfully reproduces a real problem, which is that a TypeMirror that is
@@ -158,9 +159,8 @@ public class AutoValueCompilationTest {
                         "    return new AutoValue_Baz(ints, arrays);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         "import java.util.Arrays;",
@@ -219,15 +219,15 @@ public class AutoValueCompilationTest {
                         "    h$ ^= arrays.hashCode();",
                         "    return h$;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
@@ -254,7 +254,7 @@ public class AutoValueCompilationTest {
     }
 
     @Test
-    public void testNestedParameterizedTypesWithTypeAnnotations() {
+    public void testNestedParameterizedTypesWithTypeAnnotations() throws IOException {
         JavaFileObject annotFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Annot",
@@ -295,9 +295,8 @@ public class AutoValueCompilationTest {
                         "    return new AutoValue_Nesty(inner);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "com.example.AutoValue_Nesty",
+        String[] expectedOutput =
+                new String[]{
                         "package com.example;",
                         "",
                         "import foo.bar.Annot;",
@@ -350,7 +349,7 @@ public class AutoValueCompilationTest {
                         "    h$ ^= inner.hashCode();",
                         "    return h$;",
                         "  }",
-                        "}");
+                        "}"};
 
         Compilation compilation =
                 javac()
@@ -359,9 +358,9 @@ public class AutoValueCompilationTest {
                                 "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(annotFileObject, outerFileObject, nestyFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("com.example.AutoValue_Nesty")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("com.example.AutoValue_Nesty")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     // Tests that type annotations are correctly copied from the bounds of type parameters in the
@@ -966,7 +965,7 @@ public class AutoValueCompilationTest {
     }
 
     @Test
-    public void correctBuilder() {
+    public void correctBuilder() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -1045,9 +1044,8 @@ public class AutoValueCompilationTest {
                         "    return AutoValue_NestedAutoValue.builder();",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         "import com.google.common.base.Optional;",
@@ -1345,7 +1343,7 @@ public class AutoValueCompilationTest {
                         "          this.aNestedAutoValue);",
                         "    }",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor())
@@ -1353,9 +1351,9 @@ public class AutoValueCompilationTest {
                                 "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject, nestedJavaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test

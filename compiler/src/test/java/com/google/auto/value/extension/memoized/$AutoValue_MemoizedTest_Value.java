@@ -1,6 +1,5 @@
 package com.google.auto.value.extension.memoized;
 
-import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 
 @Generated("com.google.auto.value.processor.AutoValueProcessor")
@@ -8,18 +7,15 @@ abstract class $AutoValue_MemoizedTest_Value extends MemoizedTest.Value {
 
   private final String string;
 
-  private final String stringWithTypeAnnotation;
+  private final @org.checkerframework.checker.nullness.qual.Nullable String stringWithTypeAnnotation;
 
   private final MemoizedTest.HashCodeAndToStringCounter counter;
 
   $AutoValue_MemoizedTest_Value(
-      @Nullable String string,
-      String stringWithTypeAnnotation,
+      @javax.annotation.Nullable String string,
+      @org.checkerframework.checker.nullness.qual.Nullable String stringWithTypeAnnotation,
       MemoizedTest.HashCodeAndToStringCounter counter) {
     this.string = string;
-    if (stringWithTypeAnnotation == null) {
-      throw new NullPointerException("Null stringWithTypeAnnotation");
-    }
     this.stringWithTypeAnnotation = stringWithTypeAnnotation;
     if (counter == null) {
       throw new NullPointerException("Null counter");
@@ -27,14 +23,14 @@ abstract class $AutoValue_MemoizedTest_Value extends MemoizedTest.Value {
     this.counter = counter;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   String string() {
     return string;
   }
 
   @Override
-  String stringWithTypeAnnotation() {
+  @org.checkerframework.checker.nullness.qual.Nullable String stringWithTypeAnnotation() {
     return stringWithTypeAnnotation;
   }
 
@@ -53,14 +49,14 @@ abstract class $AutoValue_MemoizedTest_Value extends MemoizedTest.Value {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@org.checkerframework.checker.nullness.qual.Nullable Object o) {
     if (o == this) {
       return true;
     }
     if (o instanceof MemoizedTest.Value) {
       MemoizedTest.Value that = (MemoizedTest.Value) o;
       return (this.string == null ? that.string() == null : this.string.equals(that.string()))
-          && this.stringWithTypeAnnotation.equals(that.stringWithTypeAnnotation())
+          && (this.stringWithTypeAnnotation == null ? that.stringWithTypeAnnotation() == null : this.stringWithTypeAnnotation.equals(that.stringWithTypeAnnotation()))
           && this.counter.equals(that.counter());
     }
     return false;
@@ -72,7 +68,7 @@ abstract class $AutoValue_MemoizedTest_Value extends MemoizedTest.Value {
     h$ *= 1000003;
     h$ ^= (string == null) ? 0 : string.hashCode();
     h$ *= 1000003;
-    h$ ^= stringWithTypeAnnotation.hashCode();
+    h$ ^= (stringWithTypeAnnotation == null) ? 0 : stringWithTypeAnnotation.hashCode();
     h$ *= 1000003;
     h$ ^= counter.hashCode();
     return h$;

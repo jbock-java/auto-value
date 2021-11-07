@@ -18,6 +18,7 @@ package com.google.auto.value.processor;
 import com.google.common.truth.Expect;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,8 +26,11 @@ import org.junit.runners.JUnit4;
 
 import javax.tools.JavaFileObject;
 
+import java.io.IOException;
+
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 /** @author emcmanus@google.com (Éamonn McManus) */
 @RunWith(JUnit4.class)
@@ -35,7 +39,7 @@ public class AutoOneOfCompilationTest {
     public final Expect expect = Expect.create();
 
     @Test
-    public void success() {
+    public void success() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.TaskResult",
@@ -63,9 +67,8 @@ public class AutoOneOfCompilationTest {
                         "    return AutoOneOf_TaskResult.exception(exception);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoOneOf_TaskResult",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         GeneratedImport.importGeneratedAnnotationType(),
@@ -235,7 +238,7 @@ public class AutoOneOfCompilationTest {
                         "    public TaskResult.Kind getKind() {",
                         "      return TaskResult.Kind.EMPTY;",
                         "    }",
-                        "  }");
+                        "  }"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoOneOfProcessor())
@@ -243,13 +246,13 @@ public class AutoOneOfCompilationTest {
                                 "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoOneOf_TaskResult")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoOneOf_TaskResult")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void voidInstanceWithoutGenericTypeParameters() {
+    public void voidInstanceWithoutGenericTypeParameters() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Nothing",
@@ -267,9 +270,8 @@ public class AutoOneOfCompilationTest {
                         "",
                         "  abstract void nothing();",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.Nothing",
+        String[] expectedOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         GeneratedImport.importGeneratedAnnotationType(),
@@ -320,7 +322,7 @@ public class AutoOneOfCompilationTest {
                         "      return Nothing.Kind.NOTHING;",
                         "    }",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoOneOfProcessor())
@@ -328,9 +330,9 @@ public class AutoOneOfCompilationTest {
                                 "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoOneOf_Nothing")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoOneOf_Nothing")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test

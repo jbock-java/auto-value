@@ -26,6 +26,7 @@ import com.google.common.truth.Truth;
 import com.google.common.truth.Truth8;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -61,12 +62,13 @@ import java.util.zip.ZipEntry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(JUnit4.class)
 public class ExtensionTest {
 
     @Test
-    public void testExtensionCompilation() {
+    public void testExtensionCompilation() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -78,9 +80,8 @@ public class ExtensionTest {
                         "public abstract class Baz {",
                         "  abstract String foo();",
                         "}");
-        JavaFileObject expectedExtensionOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedExtensionOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         "final class AutoValue_Baz extends $AutoValue_Baz {",
@@ -93,19 +94,19 @@ public class ExtensionTest {
                         "  public String dizzle() {\n",
                         "    return \"dizzle\";\n",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor(ImmutableList.of(new FooExtension())))
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedExtensionOutput);
+        String actualExtensionOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualExtensionOutput.lines().toArray(), is(expectedExtensionOutput));
     }
 
     @Test
-    public void testExtensionConsumesProperties() {
+    public void testExtensionConsumesProperties() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -118,9 +119,8 @@ public class ExtensionTest {
                         "  abstract String foo();",
                         "  abstract String dizzle();",
                         "}");
-        JavaFileObject expectedExtensionOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.$AutoValue_Baz",
+        String[] expectedExtensionOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         GeneratedImport.importGeneratedAnnotationType(),
@@ -169,16 +169,16 @@ public class ExtensionTest {
                         "    h$ ^= foo.hashCode();",
                         "    return h$;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor(ImmutableList.of(new FooExtension())))
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.$AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedExtensionOutput);
+        String actualExtensionOutput = compilation.generatedSourceFile("foo.bar.$AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualExtensionOutput.lines().toArray(), is(expectedExtensionOutput));
     }
 
     @Test
@@ -409,7 +409,7 @@ public class ExtensionTest {
     }
 
     @Test
-    public void testExtensionWithBuilderCompilation() {
+    public void testExtensionWithBuilderCompilation() throws IOException {
         JavaFileObject javaFileObject =
                 JavaFileObjects.forSourceLines(
                         "foo.bar.Baz",
@@ -428,9 +428,8 @@ public class ExtensionTest {
                         "    public abstract Baz build();",
                         "  }",
                         "}");
-        JavaFileObject expectedExtensionOutput =
-                JavaFileObjects.forSourceLines(
-                        "foo.bar.AutoValue_Baz",
+        String[] expectedExtensionOutput =
+                new String[]{
                         "package foo.bar;",
                         "",
                         "final class AutoValue_Baz extends $AutoValue_Baz {",
@@ -443,15 +442,15 @@ public class ExtensionTest {
                         "  public String dizzle() {\n",
                         "    return \"dizzle\";\n",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor(ImmutableList.of(new FooExtension())))
                         .compile(javaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedExtensionOutput);
+        String actualExtensionOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualExtensionOutput.lines().toArray(), is(expectedExtensionOutput));
     }
 
     @Test

@@ -93,7 +93,7 @@ public class MemoizedTest {
         @javax.annotation.Nullable
         abstract String string();
 
-        abstract  String stringWithTypeAnnotation();
+        abstract @org.checkerframework.checker.nullness.qual.Nullable String stringWithTypeAnnotation();
 
         abstract HashCodeAndToStringCounter counter();
 
@@ -123,7 +123,7 @@ public class MemoizedTest {
         }
 
         @Memoized
-
+        @org.checkerframework.checker.nullness.qual.Nullable
         String nullableWithTypeAnnotation() {
             nullableWithTypeAnnotationCount++;
             return "nullable derived "
@@ -133,7 +133,7 @@ public class MemoizedTest {
         }
 
         @Memoized
-
+        @org.checkerframework.checker.nullness.qual.Nullable
         String returnsNullWithTypeAnnotation() {
             returnsNullWithTypeAnnotationCount++;
             return null;

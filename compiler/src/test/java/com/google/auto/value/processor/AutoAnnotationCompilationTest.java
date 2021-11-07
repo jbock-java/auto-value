@@ -18,23 +18,24 @@ package com.google.auto.value.processor;
 import com.google.common.truth.Truth8;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import javax.tools.JavaFileObject;
-
-import java.util.stream.Collectors;
+import java.io.IOException;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 /** @author emcmanus@google.com (Éamonn McManus) */
 @RunWith(JUnit4.class)
 public class AutoAnnotationCompilationTest {
 
     @Test
-    public void testSimple() {
+    public void testSimple() throws IOException {
         JavaFileObject myAnnotationJavaFile =
                 JavaFileObjects.forSourceLines(
                         "com.example.annotations.MyAnnotation",
@@ -70,9 +71,8 @@ public class AutoAnnotationCompilationTest {
                         "    return new AutoAnnotation_AnnotationFactory_newMyAnnotation(value);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation",
+        String[] expectedOutput =
+                new String[]{
                         "package com.example.factories;",
                         "",
                         "import com.example.annotations.MyAnnotation;",
@@ -130,21 +130,20 @@ public class AutoAnnotationCompilationTest {
                         "        + (" + 127 * "value".hashCode() + " ^ value.hashCode())",
                         "    ;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoAnnotationProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(annotationFactoryJavaFile, myAnnotationJavaFile, myEnumJavaFile);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void testEmptyPackage() {
+    public void testEmptyPackage() throws IOException {
         JavaFileObject myAnnotationJavaFile =
                 JavaFileObjects.forSourceLines(
                         "MyAnnotation", //
@@ -160,9 +159,8 @@ public class AutoAnnotationCompilationTest {
                         "    return new AutoAnnotation_AnnotationFactory_newMyAnnotation();",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "AutoAnnotation_AnnotationFactory_newMyAnnotation",
+        String[] expectedOutput =
+                new String[]{
                         "import java.io.Serializable;",
                         GeneratedImport.importGeneratedAnnotationType(),
                         "",
@@ -195,20 +193,20 @@ public class AutoAnnotationCompilationTest {
                         "  @Override public int hashCode() {",
                         "    return 0;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoAnnotationProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(annotationFactoryJavaFile, myAnnotationJavaFile);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile("AutoAnnotation_AnnotationFactory_newMyAnnotation")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("AutoAnnotation_AnnotationFactory_newMyAnnotation")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void testGwtSimple() {
+    public void testGwtSimple() throws IOException {
         JavaFileObject myAnnotationJavaFile =
                 JavaFileObjects.forSourceLines(
                         "com.example.annotations.MyAnnotation",
@@ -240,9 +238,8 @@ public class AutoAnnotationCompilationTest {
                         "    return new AutoAnnotation_AnnotationFactory_newMyAnnotation(value);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation",
+        String[] expectedOutput =
+                new String[]{
                         "package com.example.factories;",
                         "",
                         "import com.example.annotations.MyAnnotation;",
@@ -295,21 +292,20 @@ public class AutoAnnotationCompilationTest {
                         "    return ",
                         "        + (" + 127 * "value".hashCode() + " ^ Arrays.hashCode(value));",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoAnnotationProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(annotationFactoryJavaFile, myAnnotationJavaFile, gwtCompatibleJavaFile);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void testCollectionsForArrays() {
+    public void testCollectionsForArrays() throws IOException {
         JavaFileObject myAnnotationJavaFile =
                 JavaFileObjects.forSourceLines(
                         "com.example.annotations.MyAnnotation",
@@ -348,9 +344,8 @@ public class AutoAnnotationCompilationTest {
                         "    return new AutoAnnotation_AnnotationFactory_newMyAnnotation(value, enums);",
                         "  }",
                         "}");
-        JavaFileObject expectedOutput =
-                JavaFileObjects.forSourceLines(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation",
+        String[] expectedOutput =
+                new String[]{
                         "package com.example.factories;",
                         "",
                         "import com.example.annotations.MyAnnotation;",
@@ -436,17 +431,16 @@ public class AutoAnnotationCompilationTest {
                         "    }",
                         "    return a;",
                         "  }",
-                        "}");
+                        "}"};
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoAnnotationProcessor())
                         .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(annotationFactoryJavaFile, myEnumJavaFile, myAnnotationJavaFile);
         assertThat(compilation).succeededWithoutWarnings();
-        assertThat(compilation)
-                .generatedSourceFile(
-                        "com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("com.example.factories.AutoAnnotation_AnnotationFactory_newMyAnnotation")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
@@ -478,9 +472,9 @@ public class AutoAnnotationCompilationTest {
                 .inFile(erroneousJavaFileObject)
                 .onLineContaining("@NotAutoAnnotation");
         Truth8.assertThat(
-                compilation.errors().stream()
-                        .map(diag -> diag.getMessage(null))
-                        .filter(m -> m.contains("static")))
+                        compilation.errors().stream()
+                                .map(diag -> diag.getMessage(null))
+                                .filter(m -> m.contains("static")))
                 .isEmpty();
     }
 }

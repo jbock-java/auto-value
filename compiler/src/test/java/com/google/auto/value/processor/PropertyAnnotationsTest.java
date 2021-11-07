@@ -20,12 +20,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import javax.annotation.Nullable;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
@@ -34,6 +36,7 @@ import java.util.List;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * Tests to ensure annotations are kept on AutoValue generated classes
@@ -193,7 +196,7 @@ public class PropertyAnnotationsTest {
             return this;
         }
 
-        JavaFileObject build() {
+        String[] build() {
             String nullable = methodAnnotations.contains("@Nullable") ? "@Nullable " : "";
             ImmutableSortedSet<String> allImports =
                     ImmutableSortedSet.<String>naturalOrder()
@@ -247,8 +250,7 @@ public class PropertyAnnotationsTest {
                                     "}")
                             .build();
 
-            String[] lines = list.toArray(new String[list.size()]);
-            return JavaFileObjects.forSourceLines("foo.bar.AutoValue_Baz", lines);
+            return list.toArray(new String[list.size()]);
         }
     }
 
@@ -263,12 +265,12 @@ public class PropertyAnnotationsTest {
     private void assertGeneratedMatches(
             Iterable<String> imports,
             Iterable<String> annotations,
-            Iterable<String> expectedMethodAnnotations) {
+            Iterable<String> expectedMethodAnnotations) throws IOException {
 
         JavaFileObject javaFileObject =
                 new InputFileBuilder().setImports(imports).addAnnotations(annotations).build();
 
-        JavaFileObject expectedOutput =
+        String[] expectedOutput =
                 new OutputFileBuilder()
                         .setImports(imports)
                         .addMethodAnnotations(expectedMethodAnnotations)
@@ -280,19 +282,19 @@ public class PropertyAnnotationsTest {
                         .withProcessors(new AutoValueProcessor())
                         .compile(javaFileObject);
         assertThat(compilation).succeeded();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(expectedOutput);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(expectedOutput));
     }
 
     @Test
-    public void testSimpleAnnotation() {
+    public void testSimpleAnnotation() throws IOException {
         assertGeneratedMatches(
                 ImmutableList.of(), ImmutableList.of("@Deprecated"), ImmutableList.of("@Deprecated"));
     }
 
     @Test
-    public void testSingleStringValueAnnotation() {
+    public void testSingleStringValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 ImmutableList.of(),
                 ImmutableList.of("@SuppressWarnings(\"a\")"),
@@ -300,7 +302,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testMultiStringValueAnnotation() {
+    public void testMultiStringValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 ImmutableList.of(),
                 ImmutableList.of("@SuppressWarnings({\"a\", \"b\"})"),
@@ -308,7 +310,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testNumberValueAnnotation() {
+    public void testNumberValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ANNOTATION + "(testShort = 1, testInt = 2, testLong = 3L)"),
@@ -316,7 +318,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testByteValueAnnotation() {
+    public void testByteValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ANNOTATION + "(testByte = 0)"),
@@ -324,7 +326,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testDecimalValueAnnotation() {
+    public void testDecimalValueAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ANNOTATION + "(testDouble = 1.2d, testFloat = 3.4f)"),
@@ -332,7 +334,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testOtherValuesAnnotation() {
+    public void testOtherValuesAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -342,7 +344,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testClassAnnotation() {
+    public void testClassAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ANNOTATION + "(testClass = String.class)"),
@@ -350,7 +352,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testEnumAnnotation() {
+    public void testEnumAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -362,7 +364,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testEmptyAnnotationAnnotation() {
+    public void testEmptyAnnotationAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -372,7 +374,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testValuedAnnotationAnnotation() {
+    public void testValuedAnnotationAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -384,7 +386,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testNumberArrayAnnotation() {
+    public void testNumberArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -396,7 +398,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testByteArrayAnnotation() {
+    public void testByteArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ARRAY_ANNOTATION + "(testBytes = {0, 1})"),
@@ -404,7 +406,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testDecimalArrayAnnotation() {
+    public void testDecimalArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -414,7 +416,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testOtherArrayAnnotation() {
+    public void testOtherArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -428,7 +430,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testClassArrayAnnotation() {
+    public void testClassArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(TEST_ARRAY_ANNOTATION + "(testClasses = {String.class, Long.class})"),
@@ -436,7 +438,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testImportedClassArrayAnnotation() {
+    public void testImportedClassArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class, Nullable.class),
                 ImmutableList.of(
@@ -446,7 +448,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testEnumArrayAnnotation() {
+    public void testEnumArrayAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -460,7 +462,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testArrayOfEmptyAnnotationAnnotation() {
+    public void testArrayOfEmptyAnnotationAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -482,7 +484,7 @@ public class PropertyAnnotationsTest {
     }
 
     @Test
-    public void testArrayOfValuedAnnotationAnnotation() {
+    public void testArrayOfValuedAnnotationAnnotation() throws IOException {
         assertGeneratedMatches(
                 getImports(PropertyAnnotationsTest.class),
                 ImmutableList.of(
@@ -499,7 +501,7 @@ public class PropertyAnnotationsTest {
      * generated class.
      */
     @Test
-    public void testCopyingMethodAnnotations() {
+    public void testCopyingMethodAnnotations() throws IOException {
         ImmutableSet<String> imports = getImports(PropertyAnnotationsTest.class);
         JavaFileObject inputFile =
                 new InputFileBuilder()
@@ -515,7 +517,7 @@ public class PropertyAnnotationsTest {
         // Annotations are in lexicographical order of FQN:
         // @com.google.auto.value.processor.PropertyAnnotationsTest.InheritedAnnotation precedes
         // @java.lang.Deprecated
-        JavaFileObject outputFile =
+        String[] outputFile =
                 new OutputFileBuilder()
                         .setImports(imports)
                         .addMethodAnnotations("@PropertyAnnotationsTest.InheritedAnnotation", "@Deprecated")
@@ -528,9 +530,9 @@ public class PropertyAnnotationsTest {
                         .withProcessors(new AutoValueProcessor())
                         .compile(inputFile);
         assertThat(compilation).succeeded();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(outputFile);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(outputFile));
     }
 
     /**
@@ -539,7 +541,7 @@ public class PropertyAnnotationsTest {
      * the method implementation in the generated class.
      */
     @Test
-    public void testCopyingMethodAnnotationsToGeneratedFields() {
+    public void testCopyingMethodAnnotationsToGeneratedFields() throws IOException {
         JavaFileObject inputFile =
                 new InputFileBuilder()
                         .setImports(getImports(PropertyAnnotationsTest.class, Target.class, ElementType.class))
@@ -557,7 +559,7 @@ public class PropertyAnnotationsTest {
         // @com.google.auto.value.processor.PropertyAnnotationsTest.InheritedAnnotation precedes
         // @foo.bar.Baz.MethodsOnly precedes
         // @java.lang.Deprecated
-        JavaFileObject outputFile =
+        String[] outputFile =
                 new OutputFileBuilder()
                         .setImports(getImports(PropertyAnnotationsTest.class))
                         .addFieldAnnotations("@PropertyAnnotationsTest.InheritedAnnotation", "@Deprecated")
@@ -571,8 +573,8 @@ public class PropertyAnnotationsTest {
                         .withProcessors(new AutoValueProcessor())
                         .compile(inputFile);
         assertThat(compilation).succeeded();
-        assertThat(compilation)
-                .generatedSourceFile("foo.bar.AutoValue_Baz")
-                .hasSourceEquivalentTo(outputFile);
+        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
+                .orElseThrow().getCharContent(false).toString();
+        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(outputFile));
     }
 }
