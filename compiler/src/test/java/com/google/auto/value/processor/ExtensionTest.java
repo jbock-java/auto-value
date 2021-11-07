@@ -91,8 +91,8 @@ public class ExtensionTest {
                         "  @Override public String foo() {",
                         "    return \"foo\";",
                         "  }",
-                        "  public String dizzle() {\n",
-                        "    return \"dizzle\";\n",
+                        "  public String dizzle() {",
+                        "    return \"dizzle\";",
                         "  }",
                         "}"};
         Compilation compilation =
@@ -126,7 +126,7 @@ public class ExtensionTest {
                         GeneratedImport.importGeneratedAnnotationType(),
                         "",
                         "@Generated(\"com.google.auto.value.processor.AutoValueProcessor\")",
-                        " abstract class $AutoValue_Baz extends Baz {",
+                        "abstract class $AutoValue_Baz extends Baz {",
                         "",
                         "  private final String foo;",
                         "",
@@ -169,6 +169,7 @@ public class ExtensionTest {
                         "    h$ ^= foo.hashCode();",
                         "    return h$;",
                         "  }",
+                        "",
                         "}"};
         Compilation compilation =
                 javac()
@@ -439,8 +440,8 @@ public class ExtensionTest {
                         "  @Override public String foo() {",
                         "    return \"foo\";",
                         "  }",
-                        "  public String dizzle() {\n",
-                        "    return \"dizzle\";\n",
+                        "  public String dizzle() {",
+                        "    return \"dizzle\";",
                         "  }",
                         "}"};
         Compilation compilation =
