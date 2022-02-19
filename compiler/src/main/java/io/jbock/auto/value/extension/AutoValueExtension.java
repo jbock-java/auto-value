@@ -61,7 +61,7 @@ import java.util.Set;
  * {@code Foo} class will reference, for example with {@code new AutoValue_Foo(...)}.
  *
  * <p>Each Extension must also be sure to generate a constructor with arguments corresponding to all
- * properties in {@link com.google.auto.value.extension.AutoValueExtension.Context#propertyTypes()},
+ * properties in {@link io.jbock.auto.value.extension.AutoValueExtension.Context#propertyTypes()},
  * in order, and to call the superclass constructor with the same arguments. This constructor must
  * have at least package visibility.
  *
