@@ -18,8 +18,6 @@ package com.google.escapevelocity;
 import com.google.auto.value.base.ListMultimap;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.base.Verify;
-import com.google.common.base.CharMatcher;
-import com.google.common.collect.ImmutableMap;
 import com.google.escapevelocity.DirectiveNode.ForEachNode;
 import com.google.escapevelocity.DirectiveNode.IfNode;
 import com.google.escapevelocity.DirectiveNode.SetNode;
@@ -40,12 +38,14 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -115,7 +115,7 @@ class Parser {
     Template parse() throws IOException {
         ParseResult parseResult = parseToStop(EOF_CLASS, () -> "outside any construct");
         Node root = Node.cons(resourceName, lineNumber(), parseResult.nodes);
-        return new Template(root, ImmutableMap.copyOf(macros));
+        return new Template(root, new LinkedHashMap<>(macros));
     }
 
     private int lineNumber() {
@@ -1274,31 +1274,22 @@ class Parser {
         return new ConstantExpressionNode(resourceName, lineNumber(), value);
     }
 
-    private static final CharMatcher ASCII_LETTER =
-            CharMatcher.inRange('A', 'Z')
-                    .or(CharMatcher.inRange('a', 'z'))
-                    .precomputed();
+    private static final Pattern ASCII_LETTER = Pattern.compile("[a-zA-Z]");
 
-    private static final CharMatcher ASCII_DIGIT =
-            CharMatcher.inRange('0', '9')
-                    .precomputed();
+    private static final Pattern ASCII_DIGIT = Pattern.compile("[0-9]");
 
-    private static final CharMatcher ID_CHAR =
-            ASCII_LETTER
-                    .or(ASCII_DIGIT)
-                    .or(CharMatcher.anyOf("-_"))
-                    .precomputed();
+    private static final Pattern ID_CHAR = Pattern.compile("[a-zA-Z0-9-_]");
 
     private static boolean isAsciiLetter(int c) {
-        return (char) c == c && ASCII_LETTER.matches((char) c);
+        return (char) c == c && ASCII_LETTER.matcher(Character.toString(c)).matches();
     }
 
     private static boolean isAsciiDigit(int c) {
-        return (char) c == c && ASCII_DIGIT.matches((char) c);
+        return (char) c == c && ASCII_DIGIT.matcher(Character.toString(c)).matches();
     }
 
     private static boolean isIdChar(int c) {
-        return (char) c == c && ID_CHAR.matches((char) c);
+        return (char) c == c && ID_CHAR.matcher(Character.toString(c)).matches();
     }
 
     /**
