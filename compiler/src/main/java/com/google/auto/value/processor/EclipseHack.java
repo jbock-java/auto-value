@@ -17,8 +17,6 @@ package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -125,7 +123,7 @@ class EclipseHack {
             TypeMirror methodMirror = typeUtils.asMemberOf(in, method);
             return MoreTypes.asExecutable(methodMirror).getReturnType();
         } catch (IllegalArgumentException e) {
-            return methodReturnTypes(ImmutableSet.of(method), in).get(method);
+            return methodReturnTypes(Set.of(method), in).get(method);
         }
     }
 
@@ -142,9 +140,9 @@ class EclipseHack {
      * javac's implementation doesn't. So we try the way that would work if Eclipse weren't buggy, and
      * only if we get IllegalArgumentException do we use {@code getAllMembers}.
      */
-    ImmutableMap<ExecutableElement, TypeMirror> methodReturnTypes(
+    Map<ExecutableElement, TypeMirror> methodReturnTypes(
             Set<ExecutableElement> methods, DeclaredType in) {
-        ImmutableMap.Builder<ExecutableElement, TypeMirror> map = ImmutableMap.builder();
+        Map<ExecutableElement, TypeMirror> map = new LinkedHashMap<>();
         Map<Name, ExecutableElement> noArgMethods = null;
         for (ExecutableElement method : methods) {
             TypeMirror returnType = null;
@@ -164,7 +162,7 @@ class EclipseHack {
             }
             map.put(method, returnType);
         }
-        return map.build();
+        return map;
     }
 
     /**

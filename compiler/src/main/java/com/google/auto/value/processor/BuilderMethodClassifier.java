@@ -23,10 +23,6 @@ import com.google.auto.value.base.Util;
 import com.google.auto.value.processor.BuilderSpec.Copier;
 import com.google.auto.value.processor.BuilderSpec.PropertySetter;
 import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -41,8 +37,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -131,8 +129,8 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * the name of the property is {@code foo}, If the builder also has a method of the same name
      * ({@code foo()} or {@code getFoo()}) then the set returned here will contain {@code foo}.
      */
-    ImmutableMap<String, BuilderSpec.PropertyGetter> builderGetters() {
-        return ImmutableMap.copyOf(builderGetters);
+    Map<String, BuilderSpec.PropertyGetter> builderGetters() {
+        return builderGetters;
     }
 
     /**
@@ -141,7 +139,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * build()}.
      */
     Set<ExecutableElement> buildMethods() {
-        return ImmutableSet.copyOf(buildMethods);
+        return buildMethods;
     }
 
     /** Classifies the given methods and sets the state of this object based on what is found. */
@@ -385,7 +383,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
             ExecutableType methodMirror =
                     MoreTypes.asExecutable(typeUtils.asMemberOf(builderTypeMirror, method));
             if (TYPE_EQUIVALENCE.equivalent(methodMirror.getReturnType(), builderType.asType())) {
-                TypeMirror parameterType = Iterables.getOnlyElement(methodMirror.getParameterTypes());
+                TypeMirror parameterType = Util.getOnlyElement(methodMirror.getParameterTypes());
                 propertyNameToSetters.put(
                         propertyName, new PropertySetter(method, parameterType, function.get()));
             } else {
@@ -439,7 +437,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * function will be something like {@code s -> "Optional.of(" + s + ")"}.
      */
     private Optional<Copier> getSetterFunction(E propertyElement, ExecutableElement setter) {
-        VariableElement parameterElement = Iterables.getOnlyElement(setter.getParameters());
+        VariableElement parameterElement = Util.getOnlyElement(setter.getParameters());
         boolean nullableParameter =
                 nullableAnnotationFor(parameterElement, parameterElement.asType()).isPresent();
         String property = Util.inverse(propertyElements()).get(propertyElement);
@@ -470,7 +468,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
         }
 
         // Parameter type is not equal to property type, but might be convertible with copyOf.
-        ImmutableList<ExecutableElement> copyOfMethods = copyOfMethods(targetType, nullableParameter);
+        List<ExecutableElement> copyOfMethods = copyOfMethods(targetType, nullableParameter);
         if (!copyOfMethods.isEmpty()) {
             return getConvertingSetterFunction(copyOfMethods, propertyElement, setter, parameterType);
         }
@@ -490,7 +488,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * conversion isn't possible. An error will have been reported in the latter case.
      */
     private Optional<Copier> getConvertingSetterFunction(
-            ImmutableList<ExecutableElement> copyOfMethods,
+            List<ExecutableElement> copyOfMethods,
             E propertyElement,
             ExecutableElement setter,
             TypeMirror parameterType) {
@@ -577,20 +575,20 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * collection types have at least one such method, but we will also accept other classes with an
      * appropriate {@code copyOf} method, such as {@link java.util.EnumSet}.
      */
-    private ImmutableList<ExecutableElement> copyOfMethods(
+    private List<ExecutableElement> copyOfMethods(
             TypeMirror targetType, boolean nullableParameter) {
         if (!targetType.getKind().equals(TypeKind.DECLARED)) {
-            return ImmutableList.of();
+            return List.of();
         }
-        ImmutableSet<String> copyOfNames;
+        Set<String> copyOfNames;
         Optionalish optionalish = Optionalish.createIfOptional(targetType);
         if (optionalish == null) {
-            copyOfNames = ImmutableSet.of("copyOfSorted", "copyOf");
+            copyOfNames = Set.of("copyOfSorted", "copyOf");
         } else {
-            copyOfNames = ImmutableSet.of(nullableParameter ? optionalish.ofNullable() : "of");
+            copyOfNames = Set.of(nullableParameter ? optionalish.ofNullable() : "of");
         }
         TypeElement targetTypeElement = MoreElements.asType(typeUtils.asElement(targetType));
-        ImmutableList.Builder<ExecutableElement> copyOfMethods = ImmutableList.builder();
+        List<ExecutableElement> copyOfMethods = new ArrayList<>();
         for (String copyOfName : copyOfNames) {
             for (ExecutableElement method :
                     ElementFilter.methodsIn(targetTypeElement.getEnclosedElements())) {
@@ -601,7 +599,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
                 }
             }
         }
-        return copyOfMethods.build();
+        return copyOfMethods;
     }
 
     /**

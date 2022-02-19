@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.base.CharMatcher;
+import java.util.regex.Pattern;
 
 /**
  * Postprocessor that runs over the output of the template engine in order to make it look nicer.
@@ -30,7 +30,7 @@ class Reformatter {
      * parentheses). We've omitted {@code /} from this list for now since none of our templates splits
      * before one, and otherwise we'd have to handle {@code //} and {@code /*}.
      */
-    private static final CharMatcher OPERATORS = CharMatcher.anyOf("+-*%&|^<>=?:.").precomputed();
+    private static final Pattern OPERATORS = Pattern.compile("[+\\-*%&|^<>=?:.]");
 
     static String fixup(String s) {
         StringBuilder out = new StringBuilder();
@@ -86,7 +86,7 @@ class Reformatter {
                             // Replace any space after the newline with our computed indentation. The algorithm
                             // here is simplistic but works OK for our current templates.
                             int indent = braces * 2;
-                            if (parens > 0 || OPERATORS.matches(next)) {
+                            if (parens > 0 || OPERATORS.matcher(Character.toString(next)).matches()) {
                                 indent += 4;
                             } else if (next == '}') {
                                 indent -= 2;
