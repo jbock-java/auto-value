@@ -15,8 +15,6 @@
  */
 package com.google.auto.value.extension;
 
-import com.google.common.collect.ImmutableSet;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -326,7 +324,7 @@ public abstract class AutoValueExtension {
      * @param context the Context of the code generation for this class.
      */
     public Set<String> consumeProperties(Context context) {
-        return ImmutableSet.of();
+        return Set.of();
     }
 
     /**
@@ -348,7 +346,7 @@ public abstract class AutoValueExtension {
      * @param context the Context of the code generation for this class.
      */
     public Set<ExecutableElement> consumeMethods(Context context) {
-        return ImmutableSet.of();
+        return Set.of();
     }
 
     /**

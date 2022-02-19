@@ -21,12 +21,6 @@ import com.google.auto.common.Visibility;
 import com.google.auto.value.base.ListMultimap;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.processor.MissingTypes.MissingTypeException;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -53,7 +47,9 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -75,8 +71,8 @@ import java.util.stream.IntStream;
 
 import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
 import static com.google.auto.common.MoreElements.getPackage;
+import static com.google.auto.value.base.Util.getOnlyElement;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_PACKAGE_NAME;
-import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -132,8 +128,8 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
      * but had to abandon because we needed other types that they referenced and those other types
      * were missing. This is used by tests.
      */
-    final ImmutableList<String> deferredTypeNames() {
-        return ImmutableList.copyOf(deferredTypeNames);
+    final List<String> deferredTypeNames() {
+        return List.copyOf(deferredTypeNames);
     }
 
     @Override
@@ -369,11 +365,9 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
         }
         Collection<? extends Element> annotatedElements =
                 roundEnv.getElementsAnnotatedWith(annotationType);
-        List<TypeElement> types =
-                new ImmutableList.Builder<TypeElement>()
-                        .addAll(deferredTypes)
-                        .addAll(ElementFilter.typesIn(annotatedElements))
-                        .build();
+        List<TypeElement> types = new ArrayList<>();
+        types.addAll(deferredTypes);
+        types.addAll(ElementFilter.typesIn(annotatedElements));
         deferredTypeNames.clear();
         for (TypeElement type : types) {
             try {
@@ -389,7 +383,10 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
                 // the same TypeElement on the next round.
                 deferredTypeNames.add(type.getQualifiedName().toString());
             } catch (RuntimeException e) {
-                String trace = Throwables.getStackTraceAsString(e);
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                String trace = sw.toString();
                 errorReporter.reportError(
                         type,
                         "[AutoValueException] @%s processor threw an exception: %s",
@@ -433,17 +430,17 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
             Map<ExecutableElement, TypeMirror> propertyMethodsAndTypes,
             ListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyFields,
             ListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyMethods) {
-        ImmutableBiMap<ExecutableElement, String> methodToPropertyName =
-                propertyNameToMethodMap(propertyMethodsAndTypes.keySet()).inverse();
+        Map<ExecutableElement, String> methodToPropertyName =
+                Util.inverse(propertyNameToMethodMap(propertyMethodsAndTypes.keySet()));
         Map<ExecutableElement, String> methodToIdentifier = new LinkedHashMap<>(methodToPropertyName);
         fixReservedIdentifiers(methodToIdentifier);
 
-        ImmutableSet.Builder<Property> props = ImmutableSet.builder();
+        Set<Property> props = new LinkedHashSet<>();
         propertyMethodsAndTypes.forEach(
                 (propertyMethod, returnType) -> {
                     String propertyType =
                             TypeEncoder.encodeWithAnnotations(
-                                    returnType, ImmutableList.of(), getExcludedAnnotationTypes(propertyMethod));
+                                    returnType, List.of(), getExcludedAnnotationTypes(propertyMethod));
                     String propertyName = methodToPropertyName.get(propertyMethod);
                     String identifier = methodToIdentifier.get(propertyMethod);
                     List<String> fieldAnnotations =
@@ -468,7 +465,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
                                         propertyMethod, "[AutoValueNullPrimitive] Primitive types cannot be @Nullable");
                     }
                 });
-        return props.build();
+        return props;
     }
 
     /** Defines the template variables that are shared by AutoValue, AutoOneOf, and AutoBuilder. */
@@ -563,7 +560,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
     }
 
     /** Returns a bi-map between property names and the corresponding abstract property methods. */
-    final ImmutableBiMap<String, ExecutableElement> propertyNameToMethodMap(
+    final Map<String, ExecutableElement> propertyNameToMethodMap(
             Set<ExecutableElement> propertyMethods) {
         Map<String, ExecutableElement> map = new LinkedHashMap<>();
         Set<String> reportedDups = new HashSet<>();
@@ -588,7 +585,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
                 }
             }
         }
-        return ImmutableBiMap.copyOf(map);
+        return map;
     }
 
     private static boolean gettersAllPrefixed(Set<ExecutableElement> methods) {
@@ -779,11 +776,11 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
         // Add @Nullable if we know one and the parameter doesn't already have one.
         // The @Nullable we add will be a type annotation, but if the parameter already has @Nullable
         // then that might be a type annotation or an annotation on the parameter.
-        ImmutableList<AnnotationMirror> extraAnnotations =
+        List<AnnotationMirror> extraAnnotations =
                 nullable.isPresent() && !nullableAnnotationFor(equals, parameterType).isPresent()
-                        ? ImmutableList.of(nullable.get())
-                        : ImmutableList.of();
-        return TypeEncoder.encodeWithAnnotations(parameterType, extraAnnotations, ImmutableSet.of());
+                        ? List.of(nullable.get())
+                        : List.of();
+        return TypeEncoder.encodeWithAnnotations(parameterType, extraAnnotations, Set.of());
     }
 
     /**
@@ -821,10 +818,10 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
      * return types. A property method has no arguments, is not void, and is not {@code hashCode()} or
      * {@code toString()}.
      */
-    ImmutableMap<ExecutableElement, TypeMirror> propertyMethodsIn(
+    Map<ExecutableElement, TypeMirror> propertyMethodsIn(
             Set<ExecutableElement> abstractMethods, TypeElement autoValueOrOneOfType) {
         DeclaredType declaredType = MoreTypes.asDeclared(autoValueOrOneOfType.asType());
-        ImmutableSet.Builder<ExecutableElement> properties = ImmutableSet.builder();
+        Set<ExecutableElement> properties = new LinkedHashSet<>();
         for (ExecutableElement method : abstractMethods) {
             if (method.getParameters().isEmpty()
                     && (method.getReturnType().getKind() != TypeKind.VOID || propertiesCanBeVoid())
@@ -832,7 +829,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
                 properties.add(method);
             }
         }
-        return new EclipseHack(processingEnv).methodReturnTypes(properties.build(), declaredType);
+        return new EclipseHack(processingEnv).methodReturnTypes(properties, declaredType);
     }
 
     /** True if void properties are allowed. */
@@ -930,9 +927,9 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
     }
 
     /** Implements the semantics of {@code AutoValue.CopyAnnotations}; see its javadoc. */
-    ImmutableList<AnnotationMirror> annotationsToCopy(
+    List<AnnotationMirror> annotationsToCopy(
             Element autoValueType, Element typeOrMethod, Set<String> excludedAnnotations) {
-        ImmutableList.Builder<AnnotationMirror> result = ImmutableList.builder();
+        List<AnnotationMirror> result = new ArrayList<>();
         for (AnnotationMirror annotation : typeOrMethod.getAnnotationMirrors()) {
             String annotationFqName = getAnnotationFqName(annotation);
             // To be included, the annotation should not be in com.google.auto.value,
@@ -944,7 +941,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
             }
         }
 
-        return result.build();
+        return result;
     }
 
     /**
@@ -956,8 +953,8 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
         return className.startsWith(AUTO_VALUE_PACKAGE_NAME) && !className.contains("Test");
     }
 
-    ImmutableList<String> copiedClassAnnotations(TypeElement type) {
-        return ImmutableList.of();
+    List<String> copiedClassAnnotations(TypeElement type) {
+        return List.of();
     }
 
     /**
@@ -1009,17 +1006,12 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
 
     final ListMultimap<ExecutableElement, AnnotationMirror> propertyFieldAnnotationMap(
             TypeElement type, Set<ExecutableElement> propertyMethods) {
-        ListMultimap<ExecutableElement, AnnotationMirror> builder =
-                new ListMultimap<>();
-        for (ExecutableElement propertyMethod : propertyMethods) {
-            builder.putAll(propertyMethod, propertyFieldAnnotations(type, propertyMethod));
-        }
-        return builder;
+        return new ListMultimap<>();
     }
 
-    private ImmutableList<AnnotationMirror> propertyFieldAnnotations(
+    private List<AnnotationMirror> propertyFieldAnnotations(
             TypeElement type, ExecutableElement method) {
-        return ImmutableList.of();
+        return List.of();
     }
 
     private Set<String> getReturnTypeAnnotations(

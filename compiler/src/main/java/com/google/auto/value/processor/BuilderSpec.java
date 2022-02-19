@@ -17,14 +17,10 @@ package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
+import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.auto.value.processor.AutoValueishProcessor.Property;
 import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -39,6 +35,7 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,7 +49,6 @@ import static com.google.auto.common.MoreElements.getLocalAndInheritedMethods;
 import static com.google.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
 import static com.google.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
-import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static javax.lang.model.util.ElementFilter.methodsIn;
@@ -77,8 +73,8 @@ class BuilderSpec {
         this.errorReporter = errorReporter;
     }
 
-    private static final ImmutableSet<ElementKind> CLASS_OR_INTERFACE =
-            immutableEnumSet(ElementKind.CLASS, ElementKind.INTERFACE);
+    private static final Set<ElementKind> CLASS_OR_INTERFACE =
+            EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
 
     /**
      * Determines if the {@code @AutoValue} class for this instance has a correct nested
@@ -120,7 +116,7 @@ class BuilderSpec {
     /** Representation of an {@code AutoValue.Builder} class or interface. */
     class Builder implements AutoValueExtension.BuilderContext {
         private final TypeElement builderTypeElement;
-        private ImmutableSet<ExecutableElement> toBuilderMethods;
+        private Set<ExecutableElement> toBuilderMethods;
         private ExecutableElement buildMethod;
         private BuilderMethodClassifier<?> classifier;
 
@@ -174,7 +170,7 @@ class BuilderSpec {
 
         @Override
         public Map<String, Set<ExecutableElement>> setters() {
-            return Maps.transformValues(
+            return Util.transformValues(
                     classifier.propertyNameToSetters().asMap(),
                     propertySetters ->
                             propertySetters.stream().map(PropertySetter::getSetter).collect(toSet()));
@@ -182,7 +178,7 @@ class BuilderSpec {
 
         @Override
         public Map<String, ExecutableElement> propertyBuilders() {
-            return Maps.transformValues(
+            return Util.transformValues(
                     classifier.propertyNameToPropertyBuilder(), PropertyBuilder::getPropertyBuilderMethod);
         }
 
@@ -215,7 +211,7 @@ class BuilderSpec {
          *
          * <p>We currently impose that there cannot be more than one such method.
          */
-        ImmutableSet<ExecutableElement> toBuilderMethods(
+        Set<ExecutableElement> toBuilderMethods(
                 Types typeUtils, TypeElement autoValueType, Set<ExecutableElement> abstractMethods) {
 
             List<String> builderTypeParamNames =
@@ -224,7 +220,7 @@ class BuilderSpec {
                             .collect(toList());
 
             DeclaredType autoValueTypeMirror = MoreTypes.asDeclared(autoValueType.asType());
-            ImmutableSet.Builder<ExecutableElement> methods = ImmutableSet.builder();
+            Set<ExecutableElement> methods = new LinkedHashSet<>();
             for (ExecutableElement method : abstractMethods) {
                 if (!method.getParameters().isEmpty()) {
                     continue;
@@ -249,7 +245,7 @@ class BuilderSpec {
                     }
                 }
             }
-            ImmutableSet<ExecutableElement> builderMethods = methods.build();
+            Set<ExecutableElement> builderMethods = methods;
             if (builderMethods.size() > 1) {
                 errorReporter.reportError(
                         builderMethods.iterator().next(),
@@ -261,7 +257,7 @@ class BuilderSpec {
 
         void defineVarsForAutoValue(
                 AutoValueOrBuilderTemplateVars vars,
-                ImmutableBiMap<ExecutableElement, String> getterToPropertyName) {
+                Map<ExecutableElement, String> getterToPropertyName) {
             Iterable<ExecutableElement> builderMethods =
                     abstractMethods(builderTypeElement, processingEnv);
             boolean autoValueHasToBuilder = toBuilderMethods != null && !toBuilderMethods.isEmpty();
@@ -309,7 +305,7 @@ class BuilderSpec {
             Set<ExecutableElement> buildMethods = classifier.buildMethods();
             if (buildMethods.size() != 1) {
                 Set<? extends Element> errorElements =
-                        buildMethods.isEmpty() ? ImmutableSet.of(builderTypeElement) : buildMethods;
+                        buildMethods.isEmpty() ? Set.of(builderTypeElement) : buildMethods;
                 for (Element buildMethod : errorElements) {
                     errorReporter.reportError(
                             buildMethod,
@@ -320,7 +316,7 @@ class BuilderSpec {
                 }
                 return;
             }
-            this.buildMethod = Iterables.getOnlyElement(buildMethods);
+            this.buildMethod = Util.getOnlyElement(buildMethods);
             vars.builderIsInterface = builderTypeElement.getKind() == ElementKind.INTERFACE;
             vars.builderTypeName = TypeSimplifier.classNameOf(builderTypeElement);
             vars.builderFormalTypes =
@@ -331,7 +327,7 @@ class BuilderSpec {
             vars.builderSetters = classifier.propertyNameToSetters();
 
             vars.builderPropertyBuilders =
-                    ImmutableMap.copyOf(classifier.propertyNameToPropertyBuilder());
+                    classifier.propertyNameToPropertyBuilder();
 
             vars.builderRequiredProperties =
                     vars.props.stream()
@@ -445,7 +441,7 @@ class BuilderSpec {
             this.name = setter.getSimpleName().toString();
             primitiveParameter = parameterType.getKind().isPrimitive();
             this.parameterTypeString = parameterTypeString(setter, parameterType);
-            VariableElement parameterElement = Iterables.getOnlyElement(setter.getParameters());
+            VariableElement parameterElement = Util.getOnlyElement(setter.getParameters());
             Optional<String> maybeNullable = nullableAnnotationFor(parameterElement, parameterType);
             this.nullableAnnotation = maybeNullable.orElse("");
         }
@@ -553,19 +549,19 @@ class BuilderSpec {
      * then this method will throw an exception that will cause us to defer processing of the current
      * class until a later annotation-processing round.
      */
-    static ImmutableSet<ExecutableElement> abstractMethods(
+    static Set<ExecutableElement> abstractMethods(
             TypeElement typeElement, ProcessingEnvironment processingEnv) {
         Set<ExecutableElement> methods =
                 getLocalAndInheritedMethods(
                         typeElement, processingEnv.getTypeUtils(), processingEnv.getElementUtils());
-        ImmutableSet.Builder<ExecutableElement> abstractMethods = ImmutableSet.builder();
+        Set<ExecutableElement> abstractMethods = new LinkedHashSet<>();
         for (ExecutableElement method : methods) {
             if (method.getModifiers().contains(Modifier.ABSTRACT)) {
                 MissingTypes.deferIfMissingTypesIn(method);
                 abstractMethods.add(method);
             }
         }
-        return abstractMethods.build();
+        return abstractMethods;
     }
 
     private String typeParamsString() {

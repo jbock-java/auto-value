@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * The variables to substitute into the autovalue.vm, autooneof.vm, or builder.vm templates.
@@ -61,7 +61,7 @@ abstract class AutoValueishTemplateVars extends TemplateVars {
      * "@`com.google.common.annotations.GwtCompatible`(serializable = true)"}. The {@code ``} marks
      * are explained in {@link TypeEncoder}.
      */
-    ImmutableList<String> annotations;
+    List<String> annotations;
 
     /**
      * The formal generic signature of the class with the {@code @AutoValue} or {@code AutoOneOf}

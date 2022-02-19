@@ -16,10 +16,6 @@
 package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreTypes;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.SourceVersion;
@@ -36,6 +32,7 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.SimpleTypeVisitor8;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -74,9 +71,9 @@ class Nullables {
             }
 
             @Override
-            public ImmutableMap<? extends ExecutableElement, ? extends AnnotationValue>
+            public Map<? extends ExecutableElement, ? extends AnnotationValue>
             getElementValues() {
-                return ImmutableMap.of();
+                return Map.of();
             }
         };
     }
@@ -85,7 +82,6 @@ class Nullables {
      * Returns the type of a {@code @Nullable} type-annotation, if one is found anywhere in the
      * signatures of the given methods.
      */
-    @VisibleForTesting
     static Optional<AnnotationMirror> nullableMentionedInMethods(
             Collection<ExecutableElement> methods) {
         return methods.stream()
@@ -151,7 +147,7 @@ class Nullables {
             }
             return nullableIn(t.getAnnotationMirrors())
                     .map(Optional::of)
-                    .orElseGet(() -> visitAll(ImmutableList.of(t.getUpperBound(), t.getLowerBound())));
+                    .orElseGet(() -> visitAll(List.of(t.getUpperBound(), t.getLowerBound())));
         }
 
         @Override

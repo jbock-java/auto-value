@@ -18,8 +18,6 @@ package com.google.auto.value.processor;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.value.processor.MissingTypes.MissingTypeException;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -36,13 +34,14 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleTypeVisitor8;
 import javax.lang.model.util.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.auto.value.base.Preconditions.checkArgument;
+import static com.google.auto.value.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -101,7 +100,7 @@ final class TypeEncoder {
      * covers the details of annotation encoding.
      */
     static String encodeWithAnnotations(TypeMirror type) {
-        return encodeWithAnnotations(type, ImmutableList.of(), ImmutableSet.of());
+        return encodeWithAnnotations(type, List.of(), Set.of());
     }
 
     /**
@@ -115,19 +114,21 @@ final class TypeEncoder {
      */
     static String encodeWithAnnotations(
             TypeMirror type,
-            ImmutableList<AnnotationMirror> extraAnnotations,
+            List<AnnotationMirror> extraAnnotations,
             Set<TypeMirror> excludedAnnotationTypes) {
         StringBuilder sb = new StringBuilder();
         // A function that is equivalent to t.getAnnotationMirrors() except when the t in question is
         // our starting type. In that case we also add extraAnnotations to the result.
         Function<TypeMirror, List<? extends AnnotationMirror>> getTypeAnnotations =
-                t ->
-                        (t == type)
-                                ? ImmutableList.<AnnotationMirror>builder()
-                                .addAll(t.getAnnotationMirrors())
-                                .addAll(extraAnnotations)
-                                .build()
-                                : t.getAnnotationMirrors();
+                t -> {
+                    if (t == type) {
+                        ArrayList<AnnotationMirror> result = new ArrayList<>();
+                        result.addAll(t.getAnnotationMirrors());
+                        result.addAll(extraAnnotations);
+                        return result;
+                    }
+                    return t.getAnnotationMirrors();
+                };
         return new AnnotatedEncodingTypeVisitor(excludedAnnotationTypes, getTypeAnnotations)
                 .visit2(type, sb)
                 .toString();

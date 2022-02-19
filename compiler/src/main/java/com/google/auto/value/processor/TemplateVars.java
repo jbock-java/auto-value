@@ -15,9 +15,6 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.escapevelocity.Template;
 
 import java.io.File;
@@ -34,6 +31,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.jar.JarEntry;
@@ -57,23 +56,23 @@ import java.util.jar.JarFile;
 abstract class TemplateVars {
     abstract Template parsedTemplate();
 
-    private final ImmutableList<Field> fields;
+    private final List<Field> fields;
 
     TemplateVars() {
         this.fields = getFields(getClass());
     }
 
-    private static ImmutableList<Field> getFields(Class<?> c) {
-        ImmutableList.Builder<Field> fieldsBuilder = ImmutableList.builder();
+    private static List<Field> getFields(Class<?> c) {
+        List<Field> fieldsBuilder = new ArrayList<>();
         while (c != TemplateVars.class) {
             addFields(fieldsBuilder, c.getDeclaredFields());
             c = c.getSuperclass();
         }
-        return fieldsBuilder.build();
+        return fieldsBuilder;
     }
 
     private static void addFields(
-            ImmutableList.Builder<Field> fieldsBuilder, Field[] declaredFields) {
+            List<Field> fieldsBuilder, Field[] declaredFields) {
         for (Field field : declaredFields) {
             if (field.isSynthetic() || isStaticFinal(field)) {
                 continue;
@@ -100,7 +99,7 @@ abstract class TemplateVars {
         return parsedTemplate().evaluate(vars);
     }
 
-    private ImmutableMap<String, Object> toVars() {
+    private Map<String, Object> toVars() {
         Map<String, Object> vars = new TreeMap<>();
         for (Field field : fields) {
             Object value = fieldValue(field, this);
@@ -112,7 +111,7 @@ abstract class TemplateVars {
                 throw new IllegalArgumentException("Two fields called " + field.getName() + "?!");
             }
         }
-        return ImmutableMap.copyOf(vars);
+        return vars;
     }
 
     @Override
@@ -136,8 +135,6 @@ abstract class TemplateVars {
         try {
             return Template.parseFrom(resourceName, TemplateVars::readerFromUrl);
         } catch (IOException t) {
-            // Chain the original exception so we can see both problems.
-            Throwables.getRootCause(exception).initCause(t);
             throw new AssertionError(exception);
         }
     }

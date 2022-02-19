@@ -17,8 +17,6 @@ package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -34,10 +32,10 @@ import javax.lang.model.util.Types;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 
@@ -340,8 +338,8 @@ class PropertyBuilderClassifier {
         return Optional.of(propertyBuilder);
     }
 
-    private static final ImmutableSet<String> BUILDER_METHOD_NAMES =
-            ImmutableSet.of("naturalOrder", "builder", "newBuilder");
+    private static final Set<String> BUILDER_METHOD_NAMES =
+            Set.of("naturalOrder", "builder", "newBuilder");
 
     // (2) `BarBuilder` must have a public no-arg constructor, or `Bar` must have a visible static
     //      method `naturalOrder(), `builder()`, or `newBuilder()` that returns `BarBuilder`; or,
@@ -352,8 +350,8 @@ class PropertyBuilderClassifier {
         return builderMaker(BUILDER_METHOD_NAMES, barNoArgMethods, barBuilderTypeElement, 0);
     }
 
-    private static final ImmutableSet<String> ONE_ARGUMENT_BUILDER_METHOD_NAMES =
-            ImmutableSet.of("builder");
+    private static final Set<String> ONE_ARGUMENT_BUILDER_METHOD_NAMES =
+            Set.of("builder");
 
     private Optional<ExecutableElement> oneArgBuilderMaker(
             Map<String, ExecutableElement> barOneArgMethods, TypeElement barBuilderTypeElement) {
@@ -363,7 +361,7 @@ class PropertyBuilderClassifier {
     }
 
     private Optional<ExecutableElement> builderMaker(
-            ImmutableSet<String> methodNamesToCheck,
+            Set<String> methodNamesToCheck,
             Map<String, ExecutableElement> methods,
             TypeElement barBuilderTypeElement,
             int argumentCount) {
@@ -397,21 +395,19 @@ class PropertyBuilderClassifier {
         return methodsOf(type, 0);
     }
 
-    private ImmutableMap<String, ExecutableElement> oneArgumentMethodsOf(TypeElement type) {
+    private Map<String, ExecutableElement> oneArgumentMethodsOf(TypeElement type) {
         return methodsOf(type, 1);
     }
 
-    private ImmutableMap<String, ExecutableElement> methodsOf(TypeElement type, int argumentCount) {
+    private Map<String, ExecutableElement> methodsOf(TypeElement type, int argumentCount) {
         return ElementFilter.methodsIn(elementUtils.getAllMembers(type)).stream()
                 .filter(method -> method.getParameters().size() == argumentCount)
                 .filter(method -> !isStaticInterfaceMethodNotIn(method, type))
                 .collect(
-                        collectingAndThen(
-                                toMap(
-                                        method -> method.getSimpleName().toString(),
-                                        Function.identity(),
-                                        (method1, method2) -> method1),
-                                ImmutableMap::copyOf));
+                        toMap(
+                                method -> method.getSimpleName().toString(),
+                                Function.identity(),
+                                (method1, method2) -> method1));
     }
 
     // Work around an Eclipse compiler bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=547185
@@ -424,7 +420,7 @@ class PropertyBuilderClassifier {
                 && method.getEnclosingElement().getKind().equals(ElementKind.INTERFACE);
     }
 
-    private static final ImmutableSet<String> ADD_ALL_PUT_ALL = ImmutableSet.of("addAll", "putAll");
+    private static final Set<String> ADD_ALL_PUT_ALL = Set.of("addAll", "putAll");
 
     // We have `Bar bar()` and `Foo.Builder toBuilder()` in the @AutoValue type Foo, and we have
     // `BarBuilder barBuilder()` in Foo.Builder. That means that we need to be able to make a

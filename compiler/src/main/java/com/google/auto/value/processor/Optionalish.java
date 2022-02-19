@@ -17,9 +17,6 @@ package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
-import com.google.common.base.Verify;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
@@ -27,6 +24,10 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A wrapper for properties of Optional-like classes. This can be com.google.common.base.Optional,
@@ -35,8 +36,8 @@ import java.util.List;
  * @author emcmanus@google.com (Éamonn McManus)
  */
 public class Optionalish {
-    private static final ImmutableSet<String> OPTIONAL_CLASS_NAMES =
-            ImmutableSet.of(
+    private static final Set<String> OPTIONAL_CLASS_NAMES =
+            Set.of(
                     "com.".concat("google.common.base.Optional"), // subterfuge to foil shading
                     "java.util.Optional",
                     "java.util.OptionalDouble",
@@ -112,8 +113,8 @@ public class Optionalish {
         return className.equals("java.util.Optional") ? "ofNullable" : "fromNullable";
     }
 
-    private static final ImmutableMap<String, TypeKind> PRIMITIVE_TYPE_KINDS =
-            ImmutableMap.of(
+    private static final Map<String, TypeKind> PRIMITIVE_TYPE_KINDS =
+            Map.of(
                     "OptionalDouble", TypeKind.DOUBLE,
                     "OptionalInt", TypeKind.INT,
                     "OptionalLong", TypeKind.LONG);
@@ -121,7 +122,7 @@ public class Optionalish {
     private TypeMirror getContainedPrimitiveType(Types typeUtils) {
         String simpleName = optionalType.asElement().getSimpleName().toString();
         TypeKind typeKind = PRIMITIVE_TYPE_KINDS.get(simpleName);
-        Verify.verifyNotNull(typeKind, "Could not get contained type of %s", optionalType);
+        requireNonNull(typeKind, () -> String.format("Could not get contained type of %s", optionalType));
         return typeUtils.getPrimitiveType(typeKind);
     }
 }

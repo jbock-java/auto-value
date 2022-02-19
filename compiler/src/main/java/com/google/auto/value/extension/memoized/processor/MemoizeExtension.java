@@ -19,9 +19,8 @@ import com.google.auto.common.Equivalence;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.common.Visibility;
+import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -48,6 +47,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 import java.lang.annotation.Inherited;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -57,13 +57,10 @@ import java.util.stream.Collectors;
 import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
 import static com.google.auto.common.MoreElements.getPackage;
 import static com.google.auto.common.MoreElements.isAnnotationPresent;
+import static com.google.auto.value.base.Util.getOnlyElement;
+import static com.google.auto.value.base.Util.union;
 import static com.google.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
 import static com.google.auto.value.extension.memoized.processor.MemoizedValidator.getAnnotationMirror;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.google.common.collect.Sets.union;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static com.squareup.javapoet.TypeSpec.classBuilder;
@@ -86,8 +83,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
  * contract.
  */
 public final class MemoizeExtension extends AutoValueExtension {
-    private static final ImmutableSet<String> DO_NOT_PULL_DOWN_ANNOTATIONS =
-            ImmutableSet.of(Override.class.getCanonicalName(), MEMOIZED_NAME);
+    private static final Set<String> DO_NOT_PULL_DOWN_ANNOTATIONS =
+            Set.of(Override.class.getCanonicalName(), MEMOIZED_NAME);
 
     // TODO(b/122509249): Move code copied from com.google.auto.value.processor to auto-common.
     private static final String AUTO_VALUE_PACKAGE_NAME = "com.google.auto.value.";
@@ -298,9 +295,9 @@ public final class MemoizeExtension extends AutoValueExtension {
 
         /** Implements the semantics of {@code AutoValue.CopyAnnotations}; see its javadoc. */
         // TODO(b/122509249): Move code copied from com.google.auto.value.processor to auto-common.
-        private ImmutableList<AnnotationMirror> annotationsToCopy(
+        private List<AnnotationMirror> annotationsToCopy(
                 Element autoValueType, Element typeOrMethod, Set<String> excludedAnnotations) {
-            ImmutableList.Builder<AnnotationMirror> result = ImmutableList.builder();
+            List<AnnotationMirror> result = new ArrayList<>();
             for (AnnotationMirror annotation : typeOrMethod.getAnnotationMirrors()) {
                 String annotationFqName = getAnnotationFqName(annotation);
                 // To be included, the annotation should not be in com.google.auto.value,
@@ -312,7 +309,7 @@ public final class MemoizeExtension extends AutoValueExtension {
                 }
             }
 
-            return result.build();
+            return result;
         }
 
         /** Implements the semantics of {@code AutoValue.CopyAnnotations}; see its javadoc. */
@@ -382,7 +379,7 @@ public final class MemoizeExtension extends AutoValueExtension {
 
                 return copyAnnotations(type, type, excludedAnnotations);
             } else {
-                return ImmutableList.of();
+                return List.of();
             }
         }
 
@@ -394,7 +391,7 @@ public final class MemoizeExtension extends AutoValueExtension {
             private final ExecutableElement method;
             private final MethodSpec.Builder override;
             private final FieldSpec cacheField;
-            private final ImmutableList.Builder<FieldSpec> fields = ImmutableList.builder();
+            private final List<FieldSpec> fields = new ArrayList<>();
 
             MethodOverrider(ExecutableElement method) {
                 this.method = method;
@@ -409,7 +406,7 @@ public final class MemoizeExtension extends AutoValueExtension {
                                 .returns(cacheField.type)
                                 .addExceptions(
                                         method.getThrownTypes().stream().map(TypeName::get).collect(toList()))
-                                .addModifiers(filter(method.getModifiers(), not(equalTo(ABSTRACT))));
+                                .addModifiers(method.getModifiers().stream().filter(m -> !m.equals(ABSTRACT)).collect(toList()));
                 for (AnnotationMirror annotation : method.getAnnotationMirrors()) {
                     AnnotationSpec annotationSpec = AnnotationSpec.get(annotation);
                     if (pullDownMethodAnnotation(annotation)) {
@@ -418,7 +415,7 @@ public final class MemoizeExtension extends AutoValueExtension {
                 }
 
                 InitializationStrategy checkStrategy = strategy();
-                fields.addAll(checkStrategy.additionalFields());
+                fields.addAll(Util.listOf(checkStrategy.additionalFields()));
                 override
                         .beginControlFlow("if ($L)", checkStrategy.checkMemoized())
                         .beginControlFlow("synchronized (this)")
@@ -433,7 +430,7 @@ public final class MemoizeExtension extends AutoValueExtension {
 
             /** The fields that should be added to the subclass. */
             Iterable<FieldSpec> fields() {
-                return fields.build();
+                return fields;
             }
 
             /** The overriding method that should be added to the subclass. */
@@ -529,7 +526,7 @@ public final class MemoizeExtension extends AutoValueExtension {
             private final class NullMeansUninitialized extends InitializationStrategy {
                 @Override
                 Iterable<FieldSpec> additionalFields() {
-                    return ImmutableList.of();
+                    return List.of();
                 }
 
                 @Override
@@ -556,7 +553,7 @@ public final class MemoizeExtension extends AutoValueExtension {
 
                 @Override
                 Iterable<FieldSpec> additionalFields() {
-                    return ImmutableList.of(field);
+                    return List.of(field);
                 }
 
                 @Override

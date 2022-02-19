@@ -15,11 +15,9 @@
  */
 package com.google.auto.value.processor;
 
+import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.auto.value.extension.AutoValueExtension.BuilderContext;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -48,7 +46,7 @@ class ExtensionContext implements AutoValueExtension.Context {
         this.autoValueClass = autoValueClass;
         this.properties = properties;
         this.propertyTypes =
-                ImmutableMap.copyOf(Maps.transformValues(properties, propertyMethodsAndTypes::get));
+                Util.transformValues(properties, propertyMethodsAndTypes::get);
         this.abstractMethods = abstractMethods;
     }
 
