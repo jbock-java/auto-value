@@ -15,16 +15,16 @@
  */
 package com.google.auto.value.processor;
 
+import com.google.auto.value.base.ListMultimap;
 import com.google.auto.value.processor.AutoValueishProcessor.Property;
 import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.util.Types;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Variables to substitute into the autovalue.vm or builder.vm template.
@@ -37,7 +37,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * The properties defined by the parent class's abstract methods. The elements of this set are in
      * the same order as the original abstract method declarations in the AutoValue class.
      */
-    ImmutableSet<Property> props;
+    Set<Property> props;
 
     /**
      * The simple name of the generated builder, or empty if there is no builder. This is just
@@ -74,7 +74,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * @`java.lang.SuppressWarnings`("Immutable")}. The {@code ``} marks are explained in
      * {@link TypeEncoder}.
      */
-    ImmutableList<String> builderAnnotations = ImmutableList.of();
+    List<String> builderAnnotations = List.of();
 
     /** The builder's build method, often {@code "build"}. */
     Optional<SimpleMethod> buildMethod = Optional.empty();
@@ -93,7 +93,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * be set by more than one setter. For example, an ImmutableList might be set by {@code
      * setFoo(ImmutableList<String>)} and {@code setFoo(String[])}.
      */
-    ImmutableMultimap<String, BuilderSpec.PropertySetter> builderSetters = ImmutableMultimap.of();
+    ListMultimap<String, BuilderSpec.PropertySetter> builderSetters = new ListMultimap<>();
 
     /**
      * A map from property names to information about the associated property builder. A property
@@ -102,7 +102,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * conventions. Guava immutable types such as ImmutableList follow those conventions, as do many
      * {@code @AutoValue} types.
      */
-    ImmutableMap<String, PropertyBuilder> builderPropertyBuilders = ImmutableMap.of();
+    Map<String, PropertyBuilder> builderPropertyBuilders = Map.of();
 
     /**
      * Properties that are required to be set. A property must be set explicitly except in the
@@ -115,7 +115,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      *   <li>it has a property-builder method (in which case it defaults to empty).
      * </ul>
      */
-    ImmutableSet<Property> builderRequiredProperties = ImmutableSet.of();
+    Set<Property> builderRequiredProperties = Set.of();
 
     /**
      * A map from property names to information about the associated property getter. A property
@@ -123,7 +123,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * same name (foo() or getFoo()) and either the same return type or an Optional (or OptionalInt,
      * etc) wrapping it.
      */
-    ImmutableMap<String, BuilderSpec.PropertyGetter> builderGetters = ImmutableMap.of();
+    Map<String, BuilderSpec.PropertyGetter> builderGetters = Map.of();
 
     /**
      * True if the generated builder should have a second constructor with a parameter of the built
@@ -137,7 +137,7 @@ abstract class AutoValueOrBuilderTemplateVars extends AutoValueishTemplateVars {
      * not currently support this, but it's included in these shared variables to simplify the
      * template.
      */
-    ImmutableList<SimpleMethod> toBuilderMethods;
+    List<SimpleMethod> toBuilderMethods;
 
     /**
      * Whether to include identifiers in strings in the generated code. If false, exception messages

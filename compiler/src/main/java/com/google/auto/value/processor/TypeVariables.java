@@ -15,11 +15,11 @@
  */
 package com.google.auto.value.processor;
 
+
+import com.google.auto.common.Equivalence;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
-import com.google.common.base.Equivalence;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import com.google.auto.value.base.Preconditions;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -39,8 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import static com.google.auto.common.MoreStreams.toImmutableMap;
+import java.util.stream.Collectors;
 
 /** Methods for handling type variables. */
 final class TypeVariables {
@@ -81,7 +80,7 @@ final class TypeVariables {
      * @param targetType the class to translate the methods into ({@code Foo.Builder<T>}) in the
      *     example.
      */
-    static ImmutableMap<ExecutableElement, TypeMirror> rewriteReturnTypes(
+    static Map<ExecutableElement, TypeMirror> rewriteReturnTypes(
             Elements elementUtils,
             Types typeUtils,
             Collection<ExecutableElement> methods,
@@ -104,7 +103,7 @@ final class TypeVariables {
         }
         DeclaredType parallelSource = typeUtils.getDeclaredType(sourceType, targetTypeParameterMirrors);
         return methods.stream()
-                .collect(toImmutableMap(m -> m, m -> eclipseHack.methodReturnType(m, parallelSource)));
+                .collect(Collectors.toMap(m -> m, m -> eclipseHack.methodReturnType(m, parallelSource)));
     }
 
     /**

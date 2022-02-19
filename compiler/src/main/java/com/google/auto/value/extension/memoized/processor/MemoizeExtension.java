@@ -15,11 +15,11 @@
  */
 package com.google.auto.value.extension.memoized.processor;
 
+import com.google.auto.common.Equivalence;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.common.Visibility;
 import com.google.auto.value.extension.AutoValueExtension;
-import com.google.common.base.Equivalence.Wrapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.AnnotationSpec;
@@ -33,6 +33,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 
+import javax.annotation.processing.Generated;
 import javax.annotation.processing.Messager;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -47,16 +48,15 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 import java.lang.annotation.Inherited;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
-import static com.google.auto.common.GeneratedAnnotationSpecs.generatedAnnotationSpec;
 import static com.google.auto.common.MoreElements.getPackage;
 import static com.google.auto.common.MoreElements.isAnnotationPresent;
-import static com.google.auto.common.MoreStreams.toImmutableList;
-import static com.google.auto.common.MoreStreams.toImmutableSet;
 import static com.google.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
 import static com.google.auto.value.extension.memoized.processor.MemoizedValidator.getAnnotationMirror;
 import static com.google.common.base.Predicates.equalTo;
@@ -114,10 +114,10 @@ public final class MemoizeExtension extends AutoValueExtension {
         return new Generator(context, className, classToExtend, isFinal).generate();
     }
 
-    private static ImmutableSet<ExecutableElement> memoizedMethods(Context context) {
+    private static Set<ExecutableElement> memoizedMethods(Context context) {
         return methodsIn(context.autoValueClass().getEnclosedElements()).stream()
                 .filter(m -> getAnnotationMirror(m, MEMOIZED_NAME).isPresent())
-                .collect(toImmutableSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     static final class Generator {
@@ -152,8 +152,9 @@ public final class MemoizeExtension extends AutoValueExtension {
                             .addTypeVariables(annotatedTypeVariableNames())
                             .addModifiers(isFinal ? FINAL : ABSTRACT)
                             .addMethod(constructor());
-            generatedAnnotationSpec(elements, sourceVersion, MemoizeExtension.class)
-                    .ifPresent(generated::addAnnotation);
+            generated.addAnnotation(AnnotationSpec.builder(Generated.class)
+                    .addMember("value", MemoizeExtension.class.getCanonicalName())
+                    .build());
             for (ExecutableElement method : memoizedMethods(context)) {
                 MethodOverrider methodOverrider = new MethodOverrider(method);
                 generated.addFields(methodOverrider.fields());
@@ -171,20 +172,20 @@ public final class MemoizeExtension extends AutoValueExtension {
         // LINT.IfChange
         private TypeName superType() {
             ClassName superType = ClassName.get(context.packageName(), classToExtend);
-            ImmutableList<TypeVariableName> typeVariableNames = typeVariableNames();
+            List<TypeVariableName> typeVariableNames = typeVariableNames();
 
             return typeVariableNames.isEmpty()
                     ? superType
                     : ParameterizedTypeName.get(superType, typeVariableNames.toArray(new TypeName[]{}));
         }
 
-        private ImmutableList<TypeVariableName> typeVariableNames() {
+        private List<TypeVariableName> typeVariableNames() {
             return context.autoValueClass().getTypeParameters().stream()
                     .map(TypeVariableName::get)
-                    .collect(toImmutableList());
+                    .collect(Collectors.toList());
         }
 
-        private ImmutableList<TypeVariableName> annotatedTypeVariableNames() {
+        private List<TypeVariableName> annotatedTypeVariableNames() {
             return context.autoValueClass().getTypeParameters().stream()
                     .map(
                             p ->
@@ -192,8 +193,8 @@ public final class MemoizeExtension extends AutoValueExtension {
                                             .annotated(
                                                     p.getAnnotationMirrors().stream()
                                                             .map(AnnotationSpec::get)
-                                                            .collect(toImmutableList())))
-                    .collect(toImmutableList());
+                                                            .collect(Collectors.toList())))
+                    .collect(Collectors.toList());
         }
 
         private MethodSpec constructor() {
@@ -316,11 +317,11 @@ public final class MemoizeExtension extends AutoValueExtension {
 
         /** Implements the semantics of {@code AutoValue.CopyAnnotations}; see its javadoc. */
         // TODO(b/122509249): Move code copied from com.google.auto.value.processor to auto-common.
-        private ImmutableList<AnnotationSpec> copyAnnotations(
+        private List<AnnotationSpec> copyAnnotations(
                 Element autoValueType, Element typeOrMethod, Set<String> excludedAnnotations) {
-            ImmutableList<AnnotationMirror> annotationsToCopy =
+            List<AnnotationMirror> annotationsToCopy =
                     annotationsToCopy(autoValueType, typeOrMethod, excludedAnnotations);
-            return annotationsToCopy.stream().map(AnnotationSpec::get).collect(toImmutableList());
+            return annotationsToCopy.stream().map(AnnotationSpec::get).collect(Collectors.toList());
         }
 
         // TODO(b/122509249): Move code copied from com.google.auto.value.processor to auto-common.
@@ -333,11 +334,11 @@ public final class MemoizeExtension extends AutoValueExtension {
          * {@code TypeMirror} where each type is an annotation type.
          */
         // TODO(b/122509249): Move code copied from com.google.auto.value.processor to auto-common.
-        private ImmutableSet<TypeMirror> getExcludedAnnotationTypes(Element element) {
+        private Set<TypeMirror> getExcludedAnnotationTypes(Element element) {
             Optional<AnnotationMirror> maybeAnnotation =
                     getAnnotationMirror(element, COPY_ANNOTATIONS_NAME);
             if (!maybeAnnotation.isPresent()) {
-                return ImmutableSet.of();
+                return Set.of();
             }
 
             @SuppressWarnings("unchecked")
@@ -349,8 +350,8 @@ public final class MemoizeExtension extends AutoValueExtension {
                                     MoreTypes.equivalence().wrap((TypeMirror) annotationValue.getValue()))
                     // TODO(b/122509249): Move TypeMirrorSet to common package instead of doing this.
                     .distinct()
-                    .map(Wrapper::get)
-                    .collect(toImmutableSet());
+                    .map(Equivalence.Wrapper::get)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
         }
 
         /**
@@ -373,7 +374,7 @@ public final class MemoizeExtension extends AutoValueExtension {
                     .collect(toSet());
         }
 
-        private ImmutableList<AnnotationSpec> copiedClassAnnotations(TypeElement type) {
+        private List<AnnotationSpec> copiedClassAnnotations(TypeElement type) {
             // Only copy annotations from a class if it has @AutoValue.CopyAnnotations.
             if (hasAnnotationMirror(type, COPY_ANNOTATIONS_NAME)) {
                 Set<String> excludedAnnotations =

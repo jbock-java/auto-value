@@ -56,7 +56,7 @@ class PropertyBuilderClassifier {
     private final Elements elementUtils;
     private final BuilderMethodClassifier<?> builderMethodClassifier;
     private final Predicate<String> propertyIsNullable;
-    private final ImmutableMap<String, TypeMirror> propertyTypes;
+    private final Map<String, TypeMirror> propertyTypes;
     private final EclipseHack eclipseHack;
 
     PropertyBuilderClassifier(
@@ -65,7 +65,7 @@ class PropertyBuilderClassifier {
             Elements elementUtils,
             BuilderMethodClassifier<?> builderMethodClassifier,
             Predicate<String> propertyIsNullable,
-            ImmutableMap<String, TypeMirror> propertyTypes,
+            Map<String, TypeMirror> propertyTypes,
             EclipseHack eclipseHack) {
         this.errorReporter = errorReporter;
         this.typeUtils = typeUtils;

@@ -39,14 +39,16 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.auto.common.MoreElements.getLocalAndInheritedMethods;
-import static com.google.auto.common.MoreStreams.toImmutableSet;
 import static com.google.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
 import static com.google.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
@@ -263,14 +265,14 @@ class BuilderSpec {
             Iterable<ExecutableElement> builderMethods =
                     abstractMethods(builderTypeElement, processingEnv);
             boolean autoValueHasToBuilder = toBuilderMethods != null && !toBuilderMethods.isEmpty();
-            ImmutableMap<ExecutableElement, TypeMirror> getterToPropertyType =
+            Map<ExecutableElement, TypeMirror> getterToPropertyType =
                     TypeVariables.rewriteReturnTypes(
                             processingEnv.getElementUtils(),
                             processingEnv.getTypeUtils(),
                             getterToPropertyName.keySet(),
                             autoValueClass,
                             builderTypeElement);
-            ImmutableMap.Builder<String, TypeMirror> rewrittenPropertyTypes = ImmutableMap.builder();
+            Map<String, TypeMirror> rewrittenPropertyTypes = new LinkedHashMap<>();
             getterToPropertyType.forEach(
                     (getter, type) -> rewrittenPropertyTypes.put(getterToPropertyName.get(getter), type));
             Optional<BuilderMethodClassifier<ExecutableElement>> optionalClassifier =
@@ -281,7 +283,7 @@ class BuilderSpec {
                             autoValueClass,
                             builderTypeElement,
                             getterToPropertyName,
-                            rewrittenPropertyTypes.build(),
+                            rewrittenPropertyTypes,
                             autoValueHasToBuilder);
             if (!optionalClassifier.isPresent()) {
                 return;
@@ -336,7 +338,7 @@ class BuilderSpec {
                             .filter(p -> !p.isNullable())
                             .filter(p -> p.getBuilderInitializer().isEmpty())
                             .filter(p -> !vars.builderPropertyBuilders.containsKey(p.getName()))
-                            .collect(toImmutableSet());
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
         }
     }
 

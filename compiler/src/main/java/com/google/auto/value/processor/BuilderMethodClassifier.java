@@ -15,20 +15,18 @@
  */
 package com.google.auto.value.processor;
 
+import com.google.auto.common.Equivalence;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
+import com.google.auto.value.base.ListMultimap;
+import com.google.auto.value.base.Util;
 import com.google.auto.value.processor.BuilderSpec.Copier;
 import com.google.auto.value.processor.BuilderSpec.PropertySetter;
 import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
-import com.google.common.base.Equivalence;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -84,15 +82,15 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * be careful to look at the original type as reported by the {@link #originalPropertyType}
      * method.
      */
-    private final ImmutableMap<String, TypeMirror> rewrittenPropertyTypes;
+    private final Map<String, TypeMirror> rewrittenPropertyTypes;
 
     private final Set<ExecutableElement> buildMethods = new LinkedHashSet<>();
     private final Map<String, BuilderSpec.PropertyGetter> builderGetters = new LinkedHashMap<>();
     private final Map<String, PropertyBuilder> propertyNameToPropertyBuilder = new LinkedHashMap<>();
-    private final Multimap<String, PropertySetter> propertyNameToPrefixedSetters =
-            LinkedListMultimap.create();
-    private final Multimap<String, PropertySetter> propertyNameToUnprefixedSetters =
-            LinkedListMultimap.create();
+    private final ListMultimap<String, PropertySetter> propertyNameToPrefixedSetters =
+            new ListMultimap<>();
+    private final ListMultimap<String, PropertySetter> propertyNameToUnprefixedSetters =
+            new ListMultimap<>();
     private final EclipseHack eclipseHack;
 
     private boolean settersPrefixed;
@@ -102,7 +100,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
             ProcessingEnvironment processingEnv,
             TypeMirror builtType,
             TypeElement builderType,
-            ImmutableMap<String, TypeMirror> rewrittenPropertyTypes) {
+            Map<String, TypeMirror> rewrittenPropertyTypes) {
         this.errorReporter = errorReporter;
         this.typeUtils = processingEnv.getTypeUtils();
         this.elementUtils = processingEnv.getElementUtils();
@@ -119,9 +117,8 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * where the key is {@code "foo"} and the value describes a method in the builder called {@code
      * foo} or {@code setFoo}.
      */
-    ImmutableMultimap<String, PropertySetter> propertyNameToSetters() {
-        return ImmutableMultimap.copyOf(
-                settersPrefixed ? propertyNameToPrefixedSetters : propertyNameToUnprefixedSetters);
+    ListMultimap<String, PropertySetter> propertyNameToSetters() {
+        return settersPrefixed ? propertyNameToPrefixedSetters : propertyNameToUnprefixedSetters;
     }
 
     Map<String, PropertyBuilder> propertyNameToPropertyBuilder() {
@@ -156,7 +153,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
         if (errorReporter.errorCount() > startErrorCount) {
             return false;
         }
-        Multimap<String, PropertySetter> propertyNameToSetter;
+        ListMultimap<String, PropertySetter> propertyNameToSetter;
         if (propertyNameToPrefixedSetters.isEmpty()) {
             propertyNameToSetter = propertyNameToUnprefixedSetters;
             this.settersPrefixed = false;
@@ -335,10 +332,10 @@ abstract class BuilderMethodClassifier<E extends Element> {
             return;
         }
         String methodName = method.getSimpleName().toString();
-        ImmutableMap<String, E> propertyElements = propertyElements();
+        Map<String, E> propertyElements = propertyElements();
         String propertyName = null;
         E propertyElement = propertyElements.get(methodName);
-        Multimap<String, PropertySetter> propertyNameToSetters = null;
+        ListMultimap<String, PropertySetter> propertyNameToSetters = null;
         if (propertyElement != null) {
             propertyNameToSetters = propertyNameToUnprefixedSetters;
             propertyName = methodName;
@@ -445,7 +442,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
         VariableElement parameterElement = Iterables.getOnlyElement(setter.getParameters());
         boolean nullableParameter =
                 nullableAnnotationFor(parameterElement, parameterElement.asType()).isPresent();
-        String property = propertyElements().inverse().get(propertyElement);
+        String property = Util.inverse(propertyElements()).get(propertyElement);
         TypeMirror targetType = rewrittenPropertyTypes.get(property);
         ExecutableType finalSetter =
                 MoreTypes.asExecutable(
@@ -497,7 +494,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
             E propertyElement,
             ExecutableElement setter,
             TypeMirror parameterType) {
-        String property = propertyElements().inverse().get(propertyElement);
+        String property = Util.inverse(propertyElements()).get(propertyElement);
         DeclaredType targetType = MoreTypes.asDeclared(rewrittenPropertyTypes.get(property));
         for (ExecutableElement copyOfMethod : copyOfMethods) {
             Optional<Copier> function =
@@ -667,7 +664,7 @@ abstract class BuilderMethodClassifier<E extends Element> {
      * AutoBuilder, they are the parameters of the constructor or method that the generated builder
      * will call.
      */
-    abstract ImmutableBiMap<String, E> propertyElements();
+    abstract Map<String, E> propertyElements();
 
     /**
      * Returns the property type as it appears on the original source program element. This can be

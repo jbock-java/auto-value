@@ -15,18 +15,18 @@
  */
 package com.google.auto.value.processor;
 
+import com.google.auto.value.base.ListMultimap;
+import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -38,16 +38,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceConfigurationError;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.auto.common.MoreElements.getLocalAndInheritedMethods;
-import static com.google.auto.common.MoreStreams.toImmutableList;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
 import static com.google.common.collect.Sets.difference;
 import static com.google.common.collect.Sets.intersection;
-import static java.util.Comparator.naturalOrder;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -93,14 +93,14 @@ public class AutoValueProcessor extends AutoValueishProcessor {
     // Depending on how this AutoValueProcessor was constructed, we might already have a list of
     // extensions when init() is run, or, if `extensions` is null, we have a ClassLoader that will be
     // used to get the list using the ServiceLoader API.
-    private ImmutableList<AutoValueExtension> extensions;
+    private List<AutoValueExtension> extensions;
     private final ClassLoader loaderForExtensions;
 
     @VisibleForTesting
-    static ImmutableList<AutoValueExtension> extensionsFromLoader(ClassLoader loader) {
+    static List<AutoValueExtension> extensionsFromLoader(ClassLoader loader) {
         return SimpleServiceLoader.load(AutoValueExtension.class, loader).stream()
                 .filter(ext -> !ext.getClass().getName().equals(OLD_MEMOIZE_EXTENSION))
-                .collect(toImmutableList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -167,39 +167,39 @@ public class AutoValueProcessor extends AutoValueishProcessor {
         // If there are abstract methods that don't fit any of the categories above, that is an error
         // which we signal explicitly to avoid confusion.
 
-        ImmutableSet<ExecutableElement> methods =
+        Set<ExecutableElement> methods =
                 getLocalAndInheritedMethods(
                         type, processingEnv.getTypeUtils(), processingEnv.getElementUtils());
-        ImmutableSet<ExecutableElement> abstractMethods = abstractMethodsIn(methods);
+        Set<ExecutableElement> abstractMethods = abstractMethodsIn(methods);
 
         BuilderSpec builderSpec = new BuilderSpec(type, processingEnv, errorReporter());
         Optional<BuilderSpec.Builder> builder = builderSpec.getBuilder();
-        ImmutableSet<ExecutableElement> toBuilderMethods;
+        Set<ExecutableElement> toBuilderMethods;
         if (builder.isPresent()) {
             toBuilderMethods = builder.get().toBuilderMethods(typeUtils(), type, abstractMethods);
         } else {
-            toBuilderMethods = ImmutableSet.of();
+            toBuilderMethods = Set.of();
         }
 
         ImmutableMap<ExecutableElement, TypeMirror> propertyMethodsAndTypes =
-                propertyMethodsIn(immutableSetDifference(abstractMethods, toBuilderMethods), type);
+                propertyMethodsIn(Util.difference(abstractMethods, toBuilderMethods), type);
         ImmutableMap<String, ExecutableElement> properties =
                 propertyNameToMethodMap(propertyMethodsAndTypes.keySet());
 
         ExtensionContext context =
                 new ExtensionContext(
                         processingEnv, type, properties, propertyMethodsAndTypes, abstractMethods);
-        ImmutableList<AutoValueExtension> applicableExtensions = applicableExtensions(type, context);
-        ImmutableSet<ExecutableElement> consumedMethods =
+        List<AutoValueExtension> applicableExtensions = applicableExtensions(type, context);
+        Set<ExecutableElement> consumedMethods =
                 methodsConsumedByExtensions(
                         type, applicableExtensions, context, abstractMethods, properties);
 
         if (!consumedMethods.isEmpty()) {
-            ImmutableSet<ExecutableElement> allAbstractMethods = abstractMethods;
-            abstractMethods = immutableSetDifference(abstractMethods, consumedMethods);
-            toBuilderMethods = immutableSetDifference(toBuilderMethods, consumedMethods);
+            Set<ExecutableElement> allAbstractMethods = abstractMethods;
+            abstractMethods = Util.difference(abstractMethods, consumedMethods);
+            toBuilderMethods = Util.difference(toBuilderMethods, consumedMethods);
             propertyMethodsAndTypes =
-                    propertyMethodsIn(immutableSetDifference(abstractMethods, toBuilderMethods), type);
+                    propertyMethodsIn(Util.difference(abstractMethods, toBuilderMethods), type);
             properties = propertyNameToMethodMap(propertyMethodsAndTypes.keySet());
             context =
                     new ExtensionContext(
@@ -224,8 +224,7 @@ public class AutoValueProcessor extends AutoValueishProcessor {
         // compile errors to add to the ones we've already seen.
         errorReporter().abortIfAnyError();
 
-        GwtCompatibility gwtCompatibility = new GwtCompatibility(type);
-        vars.gwtCompatibleAnnotation = gwtCompatibility.gwtCompatibleAnnotationString();
+        vars.gwtCompatibleAnnotation = "";
 
         builder.ifPresent(context::setBuilderContext);
         int subclassDepth = writeExtensions(type, context, applicableExtensions);
@@ -238,8 +237,6 @@ public class AutoValueProcessor extends AutoValueishProcessor {
         text = TypeEncoder.decode(text, processingEnv, vars.pkg, type.asType());
         text = Reformatter.fixup(text);
         writeSourceFile(subclass, text, type);
-        GwtSerialization gwtSerialization = new GwtSerialization(gwtCompatibility, processingEnv, type);
-        gwtSerialization.maybeWriteGwtSerializer(vars, finalSubclass);
     }
 
     // Invokes each of the given extensions to generate its subclass, and returns the number of
@@ -258,7 +255,7 @@ public class AutoValueProcessor extends AutoValueishProcessor {
     private int writeExtensions(
             TypeElement type,
             ExtensionContext context,
-            ImmutableList<AutoValueExtension> applicableExtensions) {
+            List<AutoValueExtension> applicableExtensions) {
         int writtenSoFar = 0;
         for (AutoValueExtension extension : applicableExtensions) {
             String parentFqName = generatedSubclassName(type, writtenSoFar + 1);
@@ -307,12 +304,12 @@ public class AutoValueProcessor extends AutoValueishProcessor {
         return ImmutableList.copyOf(applicableExtensions);
     }
 
-    private ImmutableSet<ExecutableElement> methodsConsumedByExtensions(
+    private Set<ExecutableElement> methodsConsumedByExtensions(
             TypeElement type,
-            ImmutableList<AutoValueExtension> applicableExtensions,
+            List<AutoValueExtension> applicableExtensions,
             ExtensionContext context,
-            ImmutableSet<ExecutableElement> abstractMethods,
-            ImmutableMap<String, ExecutableElement> properties) {
+            Set<ExecutableElement> abstractMethods,
+            Map<String, ExecutableElement> properties) {
         Set<ExecutableElement> consumed = new HashSet<>();
         for (AutoValueExtension extension : applicableExtensions) {
             Set<ExecutableElement> consumedHere = new HashSet<>();
@@ -353,14 +350,14 @@ public class AutoValueProcessor extends AutoValueishProcessor {
             }
             consumed.addAll(consumedHere);
         }
-        return ImmutableSet.copyOf(consumed);
+        return consumed;
     }
 
     private void validateMethods(
             TypeElement type,
-            ImmutableSet<ExecutableElement> abstractMethods,
-            ImmutableSet<ExecutableElement> toBuilderMethods,
-            ImmutableSet<ExecutableElement> propertyMethods,
+            Set<ExecutableElement> abstractMethods,
+            Set<ExecutableElement> toBuilderMethods,
+            Set<ExecutableElement> propertyMethods,
             boolean extensionsPresent) {
         for (ExecutableElement method : abstractMethods) {
             if (propertyMethods.contains(method)) {
@@ -390,16 +387,16 @@ public class AutoValueProcessor extends AutoValueishProcessor {
     private void defineVarsForType(
             TypeElement type,
             AutoValueTemplateVars vars,
-            ImmutableSet<ExecutableElement> toBuilderMethods,
-            ImmutableMap<ExecutableElement, TypeMirror> propertyMethodsAndTypes,
+            Set<ExecutableElement> toBuilderMethods,
+            Map<ExecutableElement, TypeMirror> propertyMethodsAndTypes,
             Optional<BuilderSpec.Builder> maybeBuilder) {
-        ImmutableSet<ExecutableElement> propertyMethods = propertyMethodsAndTypes.keySet();
+        Set<ExecutableElement> propertyMethods = propertyMethodsAndTypes.keySet();
         vars.toBuilderMethods =
-                toBuilderMethods.stream().map(SimpleMethod::new).collect(toImmutableList());
+                toBuilderMethods.stream().map(SimpleMethod::new).collect(Collectors.toList());
         vars.toBuilderConstructor = !vars.toBuilderMethods.isEmpty();
-        ImmutableListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyFields =
+        ListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyFields =
                 propertyFieldAnnotationMap(type, propertyMethods);
-        ImmutableListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyMethods =
+        ListMultimap<ExecutableElement, AnnotationMirror> annotatedPropertyMethods =
                 propertyMethodAnnotationMap(type, propertyMethods);
         vars.props =
                 propertySet(propertyMethodsAndTypes, annotatedPropertyFields, annotatedPropertyMethods);

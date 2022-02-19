@@ -19,6 +19,7 @@ package com.google.auto.value.base;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -205,6 +206,16 @@ public final class Util {
   public static <E> List<E> reverse(List<E> input) {
     ArrayList<E> result = new ArrayList<>(input);
     Collections.reverse(result);
+    return result;
+  }
+
+  public static <K, V> Map<V, K> inverse(Map<K, V> map) {
+    HashMap<V, K> result = new HashMap<>();
+    map.forEach((k, v) -> {
+      if ((result.put(v, k) != null)) {
+        throw new IllegalArgumentException("Value is reachable by more than one key: " + v);
+      }
+    });
     return result;
   }
 }

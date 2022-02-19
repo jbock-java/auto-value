@@ -25,14 +25,17 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.google.auto.value.base.Util.inverse;
 import static com.google.common.collect.Sets.difference;
 
 class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<ExecutableElement> {
     private final ErrorReporter errorReporter;
-    private final ImmutableBiMap<ExecutableElement, String> getterToPropertyName;
-    private final ImmutableMap<String, ExecutableElement> getterNameToGetter;
+    private final Map<ExecutableElement, String> getterToPropertyName;
+    private final Map<String, ExecutableElement> getterNameToGetter;
     private final TypeMirror builtType;
 
     private BuilderMethodClassifierForAutoValue(
@@ -40,8 +43,8 @@ class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<Execut
             ProcessingEnvironment processingEnv,
             TypeMirror builtType,
             TypeElement builderType,
-            ImmutableBiMap<ExecutableElement, String> getterToPropertyName,
-            ImmutableMap<String, TypeMirror> rewrittenPropertyTypes) {
+            Map<ExecutableElement, String> getterToPropertyName,
+            Map<String, TypeMirror> rewrittenPropertyTypes) {
         super(errorReporter, processingEnv, builtType, builderType, rewrittenPropertyTypes);
         this.errorReporter = errorReporter;
         this.getterToPropertyName = getterToPropertyName;
@@ -73,8 +76,8 @@ class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<Execut
             ProcessingEnvironment processingEnv,
             TypeElement autoValueClass,
             TypeElement builderType,
-            ImmutableBiMap<ExecutableElement, String> getterToPropertyName,
-            ImmutableMap<String, TypeMirror> rewrittenPropertyTypes,
+            Map<ExecutableElement, String> getterToPropertyName,
+            Map<String, TypeMirror> rewrittenPropertyTypes,
             boolean autoValueHasToBuilder) {
         BuilderMethodClassifier<ExecutableElement> classifier =
                 new BuilderMethodClassifierForAutoValue(
@@ -107,8 +110,8 @@ class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<Execut
     }
 
     @Override
-    ImmutableBiMap<String, ExecutableElement> propertyElements() {
-        return getterToPropertyName.inverse();
+    Map<String, ExecutableElement> propertyElements() {
+        return inverse(getterToPropertyName);
     }
 
     @Override
@@ -119,8 +122,8 @@ class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<Execut
 
     @Override
     void checkForFailedJavaBean(ExecutableElement rejectedSetter) {
-        ImmutableSet<ExecutableElement> allGetters = getterToPropertyName.keySet();
-        ImmutableSet<ExecutableElement> prefixedGetters =
+        Set<ExecutableElement> allGetters = getterToPropertyName.keySet();
+        Set<ExecutableElement> prefixedGetters =
                 AutoValueProcessor.prefixedGettersIn(allGetters);
         if (prefixedGetters.size() < allGetters.size()
                 && prefixedGetters.size() >= allGetters.size() / 2) {

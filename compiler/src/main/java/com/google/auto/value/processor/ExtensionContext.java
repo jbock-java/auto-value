@@ -33,17 +33,17 @@ class ExtensionContext implements AutoValueExtension.Context {
 
     private final ProcessingEnvironment processingEnvironment;
     private final TypeElement autoValueClass;
-    private final ImmutableMap<String, ExecutableElement> properties;
-    private final ImmutableMap<String, TypeMirror> propertyTypes;
-    private final ImmutableSet<ExecutableElement> abstractMethods;
+    private final Map<String, ExecutableElement> properties;
+    private final Map<String, TypeMirror> propertyTypes;
+    private final Set<ExecutableElement> abstractMethods;
     private Optional<BuilderContext> builderContext = Optional.empty();
 
     ExtensionContext(
             ProcessingEnvironment processingEnvironment,
             TypeElement autoValueClass,
-            ImmutableMap<String, ExecutableElement> properties,
-            ImmutableMap<ExecutableElement, TypeMirror> propertyMethodsAndTypes,
-            ImmutableSet<ExecutableElement> abstractMethods) {
+            Map<String, ExecutableElement> properties,
+            Map<ExecutableElement, TypeMirror> propertyMethodsAndTypes,
+            Set<ExecutableElement> abstractMethods) {
         this.processingEnvironment = processingEnvironment;
         this.autoValueClass = autoValueClass;
         this.properties = properties;
