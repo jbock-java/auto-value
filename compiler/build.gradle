@@ -99,7 +99,8 @@ artifacts {
 // https://central.sonatype.org/pages/gradle.html
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        mavenJava(MavenPublication) { publication ->
+            project.shadow.component(publication)
             artifactId = 'auto-value'
             from components.java
 
