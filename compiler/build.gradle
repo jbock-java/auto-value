@@ -40,7 +40,7 @@ tasks.withType(GenerateModuleMetadata) {
 dependencies {
     implementation(project(':auto-value-annotations'))
     implementation('io.github.jbock-java:auto-common:1.2.1')
-    implementation('io.github.jbock-java:javapoet:1.14')
+    implementation('io.github.jbock-java:javapoet:1.15')
     testImplementation('com.google.errorprone:error_prone_type_annotations:2.10.0')
     testImplementation('com.google.guava:guava-testlib:31.0.1-jre')
     testImplementation('org.checkerframework:checker-qual:3.19.0')

@@ -1,7 +1,7 @@
-module com.google.auto.value.compiler {
+module io.jbock.auto.value.compiler {
 
-    requires com.google.auto.value;
+    requires io.jbock.auto.value;
     requires java.compiler;
     requires auto.common;
-    requires com.squareup.javapoet;
+    requires io.jbock.javapoet;
 }
