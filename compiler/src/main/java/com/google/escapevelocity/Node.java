@@ -15,7 +15,7 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * A node in the parse tree.
@@ -69,7 +69,7 @@ abstract class Node {
      * "else" part of an {@code #if} that does not have an explicit {@code #else}.
      */
     static Node emptyNode(String resourceName, int lineNumber) {
-        return new Cons(resourceName, lineNumber, ImmutableList.<Node>of());
+        return new Cons(resourceName, lineNumber, List.of());
     }
 
 
@@ -78,14 +78,14 @@ abstract class Node {
      * new node produces the same string as evaluating each of the given nodes and concatenating the
      * result.
      */
-    static Node cons(String resourceName, int lineNumber, ImmutableList<Node> nodes) {
+    static Node cons(String resourceName, int lineNumber, List<Node> nodes) {
         return new Cons(resourceName, lineNumber, nodes);
     }
 
     private static final class Cons extends Node {
-        private final ImmutableList<Node> nodes;
+        private final List<Node> nodes;
 
-        Cons(String resourceName, int lineNumber, ImmutableList<Node> nodes) {
+        Cons(String resourceName, int lineNumber, List<Node> nodes) {
             super(resourceName, lineNumber);
             this.nodes = nodes;
         }

@@ -15,7 +15,6 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.escapevelocity.EvaluationContext.PlainEvaluationContext;
 
 import java.io.IOException;
@@ -33,14 +32,14 @@ import java.util.Map;
 // TODO(emcmanus): spell out exactly what Velocity features are unsupported.
 public class Template {
     private final Node root;
-    private final ImmutableMap<String, Macro> macros;
+    private final Map<String, Macro> macros;
 
     /**
-     * Caches {@link Method} objects for public methods accessed through references. The first time
+     * Caches {@code Method} objects for public methods accessed through references. The first time
      * we evaluate {@code $var.property} or {@code $var.method(...)} for a {@code $var} of a given
-     * class and for a given property or method signature, we'll store the resultant {@link Method}
-     * object. Every subsequent time we'll reuse that {@link Method}. The method lookup is quite slow
-     * so caching is useful. The main downside is that we may potentially hold on to {@link Method}
+     * class and for a given property or method signature, we'll store the resultant {@code Method}
+     * object. Every subsequent time we'll reuse that {@code Method}. The method lookup is quite slow
+     * so caching is useful. The main downside is that we may potentially hold on to {@code Method}
      * objects that will never be used with this {@link Template} again. But in practice templates
      * tend to be used repeatedly with the same classes.
      */
@@ -118,7 +117,7 @@ public class Template {
         }
     }
 
-    Template(Node root, ImmutableMap<String, Macro> macros) {
+    Template(Node root, Map<String, Macro> macros) {
         this.root = root;
         this.macros = macros;
     }

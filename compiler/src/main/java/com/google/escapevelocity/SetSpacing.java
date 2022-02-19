@@ -15,7 +15,6 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.collect.Iterables;
 import com.google.escapevelocity.DirectiveNode.SetNode;
 import com.google.escapevelocity.Parser.CommentNode;
 
@@ -46,7 +45,7 @@ final class SetSpacing {
         if (nodes.size() < 2) {
             return false;
         }
-        Node potentialSpaceBeforeSet = Iterables.getLast(nodes);
+        Node potentialSpaceBeforeSet = nodes.get(nodes.size() - 1);
         Node beforeSpace = nodes.get(nodes.size() - 2);
         if (beforeSpace instanceof ReferenceNode) {
             return potentialSpaceBeforeSet.isHorizontalWhitespace();

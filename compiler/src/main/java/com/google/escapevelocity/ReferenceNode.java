@@ -15,6 +15,7 @@
  */
 package com.google.escapevelocity;
 
+import com.google.auto.value.base.Util;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -26,6 +27,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -135,7 +138,7 @@ abstract class ReferenceNode extends ExpressionNode {
                         Method method = maybeMethod.get();
                         if (!prefix.equals("is") || method.getReturnType().equals(boolean.class)) {
                             // Don't consider methods that happen to be called isFoo() but don't return boolean.
-                            return invokeMethod(method, lhsValue, ImmutableList.of());
+                            return invokeMethod(method, lhsValue, List.of());
                         }
                     }
                 }
@@ -217,7 +220,7 @@ abstract class ReferenceNode extends ExpressionNode {
                 // In general, $x[$y] is equivalent to $x.get($y). We've covered the most common cases
                 // above, but for other cases like Multimap we resort to evaluating the equivalent form.
                 MethodReferenceNode node =
-                        new MethodReferenceNode(lhs, "get", ImmutableList.of(index), silent);
+                        new MethodReferenceNode(lhs, "get", List.of(index), silent);
                 return node.evaluate(context);
             }
         }
@@ -240,7 +243,9 @@ abstract class ReferenceNode extends ExpressionNode {
 
         @Override
         public String toString() {
-            return lhs + "." + id + "(" + Joiner.on(", ").join(args) + ")";
+            return lhs + "." + id + "(" + args.stream()
+                    .map(ExpressionNode::toString)
+                    .collect(Collectors.joining(", ")) + ")";
         }
 
         /**
@@ -284,7 +289,7 @@ abstract class ReferenceNode extends ExpressionNode {
             List<Object> argValues = args.stream()
                     .map(arg -> arg.evaluate(context))
                     .collect(toList());
-            ImmutableSet<Method> publicMethodsWithName = context.publicMethodsWithName(targetClass, id);
+            Set<Method> publicMethodsWithName = context.publicMethodsWithName(targetClass, id);
             if (publicMethodsWithName.isEmpty()) {
                 throw evaluationExceptionInThis("no method " + id + " in " + targetClass.getName());
             }
@@ -302,11 +307,11 @@ abstract class ReferenceNode extends ExpressionNode {
                     throw evaluationExceptionInThis(
                             "parameters for method " + id + " have wrong types: " + argValues);
                 case 1:
-                    return invokeMethod(Iterables.getOnlyElement(compatibleMethods), lhsValue, argValues);
+                    return invokeMethod(Util.getOnlyElement(compatibleMethods), lhsValue, argValues);
                 default:
                     throw evaluationExceptionInThis(
                             "ambiguous method invocation, could be one of:\n  "
-                                    + Joiner.on("\n  ").join(compatibleMethods));
+                                    + compatibleMethods.stream().map(Method::toString).collect(Collectors.joining("\n  ")));
             }
         }
 
@@ -338,7 +343,7 @@ abstract class ReferenceNode extends ExpressionNode {
             return primitiveTypeIsAssignmentCompatible(primitive, Primitives.unwrap(value.getClass()));
         }
 
-        private static final ImmutableList<Class<?>> NUMERICAL_PRIMITIVES = ImmutableList.of(
+        private static final List<Class<?>> NUMERICAL_PRIMITIVES = List.of(
                 byte.class, short.class, int.class, long.class, float.class, double.class);
         private static final int INDEX_OF_INT = NUMERICAL_PRIMITIVES.indexOf(int.class);
 

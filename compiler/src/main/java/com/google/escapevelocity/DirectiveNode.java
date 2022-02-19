@@ -15,10 +15,9 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -192,13 +191,13 @@ abstract class DirectiveNode extends Node {
      */
     static class MacroCallNode extends DirectiveNode {
         private final String name;
-        private final ImmutableList<ExpressionNode> thunks;
+        private final List<ExpressionNode> thunks;
 
         MacroCallNode(
                 String resourceName,
                 int lineNumber,
                 String name,
-                ImmutableList<ExpressionNode> argumentNodes) {
+                List<ExpressionNode> argumentNodes) {
             super(resourceName, lineNumber);
             this.name = name;
             this.thunks = argumentNodes;

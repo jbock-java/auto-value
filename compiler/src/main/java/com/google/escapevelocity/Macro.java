@@ -15,14 +15,13 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.base.Verify;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.auto.value.base.Verify;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A macro definition. Macros appear in templates using the syntax {@code #macro (m $x $y) ... #end}
@@ -36,13 +35,13 @@ import java.util.Map;
 class Macro {
     private final int definitionLineNumber;
     private final String name;
-    private final ImmutableList<String> parameterNames;
+    private final List<String> parameterNames;
     private final Node body;
 
     Macro(int definitionLineNumber, String name, List<String> parameterNames, Node body) {
         this.definitionLineNumber = definitionLineNumber;
         this.name = name;
-        this.parameterNames = ImmutableList.copyOf(parameterNames);
+        this.parameterNames = List.copyOf(parameterNames);
         this.body = body;
     }
 
@@ -131,7 +130,7 @@ class Macro {
         }
 
         @Override
-        public ImmutableSet<Method> publicMethodsWithName(Class<?> startClass, String name) {
+        public Set<Method> publicMethodsWithName(Class<?> startClass, String name) {
             return originalEvaluationContext.publicMethodsWithName(startClass, name);
         }
 

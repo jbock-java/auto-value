@@ -15,18 +15,17 @@
  */
 package com.google.escapevelocity;
 
+import com.google.auto.value.base.ListMultimap;
+import com.google.auto.value.base.Util;
+import com.google.auto.value.base.Verify;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
-import com.google.common.base.Verify;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.ForwardingSortedSet;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
-import com.google.common.primitives.Chars;
 import com.google.common.primitives.Ints;
 import com.google.escapevelocity.DirectiveNode.ForEachNode;
 import com.google.escapevelocity.DirectiveNode.IfNode;
@@ -50,8 +49,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static com.google.auto.value.base.Preconditions.checkArgument;
 
 /**
  * A parser that reads input from the given {@link Reader} and parses it to produce a
@@ -62,12 +66,12 @@ import java.util.function.Supplier;
 class Parser {
     private static final int EOF = -1;
 
-    private static final ImmutableSet<Class<? extends StopNode>> EOF_CLASS =
-            ImmutableSet.of(EofNode.class);
-    private static final ImmutableSet<Class<? extends StopNode>> END_CLASS =
-            ImmutableSet.of(EndNode.class);
-    private static final ImmutableSet<Class<? extends StopNode>> ELSE_ELSEIF_END_CLASSES =
-            ImmutableSet.of(ElseNode.class, ElseIfNode.class, EndNode.class);
+    private static final Set<Class<? extends StopNode>> EOF_CLASS =
+            Set.of(EofNode.class);
+    private static final Set<Class<? extends StopNode>> END_CLASS =
+            Set.of(EndNode.class);
+    private static final Set<Class<? extends StopNode>> ELSE_ELSEIF_END_CLASSES =
+            Set.of(ElseNode.class, ElseIfNode.class, EndNode.class);
 
     private final LineNumberReader reader;
     private final String resourceName;
@@ -185,10 +189,10 @@ class Parser {
     }
 
     private static class ParseResult {
-        final ImmutableList<Node> nodes;
+        final List<Node> nodes;
         final StopNode stop;
 
-        ParseResult(ImmutableList<Node> nodes, StopNode stop) {
+        ParseResult(List<Node> nodes, StopNode stop) {
             this.nodes = nodes;
             this.stop = stop;
         }
@@ -205,7 +209,7 @@ class Parser {
      * @return the nodes that were parsed, plus the {@code StopNode} that caused parsing to stop.
      */
     private ParseResult parseToStop(
-            ImmutableSet<Class<? extends StopNode>> stopClasses, Supplier<String> contextDescription)
+            Set<Class<? extends StopNode>> stopClasses, Supplier<String> contextDescription)
             throws IOException {
         List<Node> nodes = new ArrayList<>();
         Node node;
@@ -224,7 +228,7 @@ class Parser {
         if (!stopClasses.contains(stop.getClass())) {
             throw parseException("Found " + stop.name() + " " + contextDescription.get());
         }
-        return new ParseResult(ImmutableList.copyOf(nodes), stop);
+        return new ParseResult(List.copyOf(nodes), stop);
     }
 
     /**
@@ -233,7 +237,7 @@ class Parser {
      * {@code )} in {@code #if (condition)}.
      */
     private ParseResult skipNewlineAndParseToStop(
-            ImmutableSet<Class<? extends StopNode>> stopClasses, Supplier<String> contextDescription)
+            Set<Class<? extends StopNode>> stopClasses, Supplier<String> contextDescription)
             throws IOException {
         if (c == '\n') {
             next();
@@ -516,7 +520,7 @@ class Parser {
         expect('(');
         skipSpace();
         String name = parseId("Macro name");
-        ImmutableList.Builder<String> parameterNames = ImmutableList.builder();
+        List<String> parameterNames = new ArrayList<>();
         while (true) {
             skipSpace();
             if (c == ')') {
@@ -536,10 +540,10 @@ class Parser {
         ParseResult parsedBody =
                 skipNewlineAndParseToStop(END_CLASS, () -> "parsing #macro starting on line " + startLine);
         if (!macros.containsKey(name)) {
-            ImmutableList<Node> bodyNodes =
-                    ImmutableList.copyOf(SetSpacing.removeInitialSpaceBeforeSet(parsedBody.nodes));
+            List<Node> bodyNodes =
+                    List.copyOf(SetSpacing.removeInitialSpaceBeforeSet(parsedBody.nodes));
             Node body = Node.cons(resourceName, startLine, bodyNodes);
-            Macro macro = new Macro(startLine, name, parameterNames.build(), body);
+            Macro macro = new Macro(startLine, name, parameterNames, body);
             macros.put(name, macro);
         }
         return Node.emptyNode(resourceName, lineNumber());
@@ -564,7 +568,7 @@ class Parser {
             throw parseException("Unrecognized directive #" + directive);
         }
         next();
-        ImmutableList.Builder<ExpressionNode> parameterNodes = ImmutableList.builder();
+        List<ExpressionNode> parameterNodes = new ArrayList<>();
         while (true) {
             skipSpace();
             if (c == ')') {
@@ -579,7 +583,7 @@ class Parser {
             }
         }
         return new DirectiveNode.MacroCallNode(
-                resourceName, lineNumber(), directive, parameterNodes.build());
+                resourceName, lineNumber(), directive, parameterNodes);
     }
 
     /**
@@ -701,7 +705,7 @@ class Parser {
     }
 
     /**
-     * Same as {@link #parseReference()}, except it really must be a reference. A {@code $} in
+     * Same as {@code #parseReference()}, except it really must be a reference. A {@code $} in
      * normal text doesn't start a reference if it is not followed by an identifier. But in an
      * expression, for example in {@code #if ($x == 23)}, {@code $} must be followed by an
      * identifier.
@@ -803,7 +807,7 @@ class Parser {
             throws IOException {
         assert c == '(';
         nextNonSpace();
-        ImmutableList.Builder<ExpressionNode> args = ImmutableList.builder();
+        List<ExpressionNode> args = new ArrayList<>();
         if (c != ')') {
             args.add(parsePrimary(/* nullAllowed= */ true));
             while (c == ',') {
@@ -816,7 +820,7 @@ class Parser {
         }
         assert c == ')';
         next();
-        return new MethodReferenceNode(lhs, id, args.build(), silent);
+        return new MethodReferenceNode(lhs, id, args, silent);
     }
 
     /**
@@ -885,16 +889,16 @@ class Parser {
      * Maps a code point to the operators that begin with that code point. For example, maps
      * {@code <} to {@code LESS} and {@code LESS_OR_EQUAL}.
      */
-    private static final ImmutableListMultimap<Integer, Operator> CODE_POINT_TO_OPERATORS;
+    private static final ListMultimap<Integer, Operator> CODE_POINT_TO_OPERATORS;
 
     static {
-        ImmutableListMultimap.Builder<Integer, Operator> builder = ImmutableListMultimap.builder();
+        ListMultimap<Integer, Operator> builder = new ListMultimap<>();
         for (Operator operator : Operator.values()) {
             if (operator != Operator.STOP) {
                 builder.put((int) operator.symbol.charAt(0), operator);
             }
         }
-        CODE_POINT_TO_OPERATORS = builder.build();
+        CODE_POINT_TO_OPERATORS = builder;
     }
 
     /**
@@ -966,12 +970,13 @@ class Parser {
          */
         private void nextOperator() throws IOException {
             skipSpace();
-            ImmutableList<Operator> possibleOperators = CODE_POINT_TO_OPERATORS.get(c);
+            List<Operator> possibleOperators = CODE_POINT_TO_OPERATORS.get(c);
             if (possibleOperators.isEmpty()) {
                 currentOperator = Operator.STOP;
                 return;
             }
-            char firstChar = Chars.checkedCast(c);
+            char firstChar = (char) c;
+            checkArgument(firstChar == c, "Out of range: %s", c);
             next();
             Operator operator = null;
             for (Operator possibleOperator : possibleOperators) {
@@ -985,7 +990,7 @@ class Parser {
             }
             if (operator == null) {
                 throw parseException(
-                        "Expected " + Iterables.getOnlyElement(possibleOperators) + ", not just " + firstChar);
+                        "Expected " + Util.getOnlyElement(possibleOperators) + ", not just " + firstChar);
             }
             currentOperator = operator;
         }
@@ -1079,7 +1084,7 @@ class Parser {
         nextNonSpace();
         if (c == ']') {
             next();
-            return new ListLiteralNode(resourceName, lineNumber(), ImmutableList.of());
+            return new ListLiteralNode(resourceName, lineNumber(), List.of());
         }
         ExpressionNode first = parsePrimary(false);
         if (c == '.') {
@@ -1105,7 +1110,7 @@ class Parser {
     }
 
     private ExpressionNode parseRemainderOfListLiteral(ExpressionNode first) throws IOException {
-        ImmutableList.Builder<ExpressionNode> builder = ImmutableList.builder();
+        List<ExpressionNode> builder = new ArrayList<>();
         builder.add(first);
         while (c == ',') {
             next();
@@ -1115,7 +1120,7 @@ class Parser {
             throw parseException("Expected ] at end of list literal");
         }
         next();
-        return new ListLiteralNode(resourceName, lineNumber(), builder.build());
+        return new ListLiteralNode(resourceName, lineNumber(), builder);
     }
 
     private static class RangeLiteralNode extends ExpressionNode {
@@ -1158,16 +1163,18 @@ class Parser {
     }
 
     private static class ListLiteralNode extends ExpressionNode {
-        private final ImmutableList<ExpressionNode> elements;
+        private final List<ExpressionNode> elements;
 
-        ListLiteralNode(String resourceName, int lineNumber, ImmutableList<ExpressionNode> elements) {
+        ListLiteralNode(String resourceName, int lineNumber, List<ExpressionNode> elements) {
             super(resourceName, lineNumber);
             this.elements = elements;
         }
 
         @Override
         public String toString() {
-            return "[" + Joiner.on(", ").join(elements) + "]";
+            return "[" + elements.stream()
+                    .map(ExpressionNode::toString)
+                    .collect(Collectors.joining(", ")) + "]";
         }
 
         @Override
@@ -1205,7 +1212,7 @@ class Parser {
         }
         next();
         String s = sb.toString();
-        ImmutableList<Node> nodes;
+        List<Node> nodes;
         if (expand) {
             // This is potentially something like "foo${bar}baz" or "foo#macro($bar)baz", where the text
             // inside "..." is expanded like a mini-template. Of course it might also just be a plain old
@@ -1215,16 +1222,16 @@ class Parser {
             ParseResult parseResult = stringParser.parseToStop(EOF_CLASS, () -> "outside any construct");
             nodes = parseResult.nodes;
         } else {
-            nodes = ImmutableList.of(new ConstantExpressionNode(resourceName, lineNumber(), s));
+            nodes = List.of(new ConstantExpressionNode(resourceName, lineNumber(), s));
         }
         return new StringLiteralNode(resourceName, lineNumber(), quote, nodes);
     }
 
     private static class StringLiteralNode extends ExpressionNode {
         private final char quote;
-        private final ImmutableList<Node> nodes;
+        private final List<Node> nodes;
 
-        StringLiteralNode(String resourceName, int lineNumber, char quote, ImmutableList<Node> nodes) {
+        StringLiteralNode(String resourceName, int lineNumber, char quote, List<Node> nodes) {
             super(resourceName, lineNumber);
             this.quote = quote;
             this.nodes = nodes;
@@ -1232,7 +1239,9 @@ class Parser {
 
         @Override
         public String toString() {
-            return quote + Joiner.on("").join(nodes) + quote;
+            return quote + nodes.stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.joining("")) + quote;
         }
 
         @Override
@@ -1251,10 +1260,7 @@ class Parser {
             sb.appendCodePoint(c);
             next();
         }
-        Integer value = Ints.tryParse(sb.toString());
-        if (value == null) {
-            throw parseException("Invalid integer: " + sb);
-        }
+        Integer value = Integer.parseInt(sb.toString());
         return new ConstantExpressionNode(resourceName, lineNumber(), value);
     }
 
