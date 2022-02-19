@@ -1,5 +1,5 @@
 module com.google.auto.value {
 
-    exports com.google.auto.value;
-    exports com.google.auto.value.extension.memoized;
+    exports io.jbock.auto.value;
+    exports io.jbock.auto.value.extension.memoized;
 }

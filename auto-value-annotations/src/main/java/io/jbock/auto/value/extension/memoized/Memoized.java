@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension.memoized;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.CLASS;
+package io.jbock.auto.value.extension.memoized;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
 /**
- * Annotates methods in {@link com.google.auto.value.AutoValue @AutoValue} classes for which the
+ * Annotates methods in {@link io.jbock.auto.value.AutoValue @AutoValue} classes for which the
  * generated subclass will <a href="https://en.wikipedia.org/wiki/Memoization">memoize</a> the
  * returned value.
  *
@@ -82,4 +82,5 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(CLASS)
 @Target(METHOD)
-public @interface Memoized {}
+public @interface Memoized {
+}

@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.auto.value;
+package io.jbock.auto.value;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specifies that <a href="https://github.com/google/auto/tree/master/value">AutoValue</a> should
+ * Specifies that <a href="https://github.com/jbock-java/auto-value">AutoValue</a> should
  * generate an implementation class for the annotated abstract class, implementing the standard
  * {@link Object} methods like {@link Object#equals equals} to have conventional value semantics. A
  * simple example:
@@ -44,34 +44,35 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface AutoValue {
 
-  /**
-   * Specifies that AutoValue should generate an implementation of the annotated class or interface,
-   * to serve as a <i>builder</i> for the value-type class it is nested within. As a simple example,
-   * here is an alternative way to write the {@code Person} class mentioned in the {@link AutoValue}
-   * example:
-   *
-   * <pre>
-   *
-   *   {@code @}AutoValue
-   *   abstract class Person {
-   *     static Builder builder() {
-   *       return new AutoValue_Person.Builder();
-   *     }
-   *
-   *     abstract String name();
-   *     abstract int id();
-   *
-   *     {@code @}AutoValue.Builder
-   *     interface Builder {
-   *       Builder name(String x);
-   *       Builder id(int x);
-   *       Person build();
-   *     }
-   *   }</pre>
-   *
-   * @author Éamonn McManus
-   */
-  @Retention(RetentionPolicy.CLASS)
-  @Target(ElementType.TYPE)
-  @interface Builder {}
+    /**
+     * Specifies that AutoValue should generate an implementation of the annotated class or interface,
+     * to serve as a <i>builder</i> for the value-type class it is nested within. As a simple example,
+     * here is an alternative way to write the {@code Person} class mentioned in the {@link AutoValue}
+     * example:
+     *
+     * <pre>
+     *
+     *   {@code @}AutoValue
+     *   abstract class Person {
+     *     static Builder builder() {
+     *       return new AutoValue_Person.Builder();
+     *     }
+     *
+     *     abstract String name();
+     *     abstract int id();
+     *
+     *     {@code @}AutoValue.Builder
+     *     interface Builder {
+     *       Builder name(String x);
+     *       Builder id(int x);
+     *       Person build();
+     *     }
+     *   }</pre>
+     *
+     * @author Éamonn McManus
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.TYPE)
+    @interface Builder {
+    }
 }
