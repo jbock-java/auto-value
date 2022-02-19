@@ -16,11 +16,6 @@
 package com.google.escapevelocity;
 
 import com.google.auto.value.base.Util;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.primitives.Primitives;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

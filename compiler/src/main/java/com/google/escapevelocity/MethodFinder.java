@@ -15,9 +15,7 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Table;
+import com.google.auto.value.base.Table;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -25,7 +23,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.google.common.reflect.Reflection.getPackageName;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -50,10 +47,10 @@ class MethodFinder {
      * calling {@link Class#getMethods()} several times for the same class, if methods of the
      * different names are called at different times. With an all-at-once scheme, we might end up
      * computing and storing information about a bunch of methods that will never be called. Because
-     * the profiling that led to the creation of this class revealed that {@link #visibleMethods} in
+     * the profiling that led to the creation of this class revealed that {@code #visibleMethods} in
      * particular is quite expensive, it's probably best to avoid calling it unnecessarily.
      */
-    private final Table<Class<?>, String, ImmutableSet<Method>> methodCache = HashBasedTable.create();
+    private final Table<Class<?>, String, Set<Method>> methodCache = new Table<>();
 
     /**
      * Returns the set of public methods with the given name in the given class. Here, "public
@@ -63,8 +60,8 @@ class MethodFinder {
      * than one ancestor may define an appropriate method, but it doesn't matter because invoking any
      * of those {@code Method} objects will have the same effect.
      */
-    synchronized ImmutableSet<Method> publicMethodsWithName(Class<?> startClass, String name) {
-        ImmutableSet<Method> cachedMethods = methodCache.get(startClass, name);
+    synchronized Set<Method> publicMethodsWithName(Class<?> startClass, String name) {
+        Set<Method> cachedMethods = methodCache.get(startClass, name);
         if (cachedMethods == null) {
             cachedMethods = uncachedPublicMethodsWithName(startClass, name);
             methodCache.put(startClass, name, cachedMethods);
@@ -72,7 +69,7 @@ class MethodFinder {
         return cachedMethods;
     }
 
-    private ImmutableSet<Method> uncachedPublicMethodsWithName(Class<?> startClass, String name) {
+    private Set<Method> uncachedPublicMethodsWithName(Class<?> startClass, String name) {
         // Class.getMethods() only returns public methods, so no need to filter explicitly for public.
         Set<Method> methods =
                 Arrays.stream(startClass.getMethods())
@@ -87,10 +84,10 @@ class MethodFinder {
             // It would be a bit simpler to use ImmutableSet.toImmutableSet() here, but there've been
             // problems in the past with versions of Guava that don't have that method.
         }
-        return ImmutableSet.copyOf(methods);
+        return methods;
     }
 
-    private static final String THIS_PACKAGE = getPackageName(Node.class) + ".";
+    private static final String THIS_PACKAGE = Node.class.getPackageName() + ".";
 
     /**
      * Returns a Method with the same name and parameter types as the given one, but that is in a
@@ -145,7 +142,7 @@ class MethodFinder {
             return true; // There are no modules, so all classes are exported.
         }
         try {
-            String pkg = getPackageName(c);
+            String pkg = c.getPackageName();
             Object module = CLASS_GET_MODULE_METHOD.invoke(c);
             return (Boolean) MODULE_IS_EXPORTED_METHOD.invoke(module, pkg);
         } catch (Exception e) {

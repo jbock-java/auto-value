@@ -15,7 +15,7 @@
  */
 package com.google.escapevelocity;
 
-import com.google.common.base.CharMatcher;
+import java.util.regex.Pattern;
 
 /**
  * A node in the parse tree representing a constant value. Evaluating the node yields the constant
@@ -31,8 +31,8 @@ import com.google.common.base.CharMatcher;
  * @author emcmanus@google.com (Éamonn McManus)
  */
 class ConstantExpressionNode extends ExpressionNode {
-    private static final CharMatcher HORIZONTAL_SPACE =
-            CharMatcher.whitespace().and(CharMatcher.noneOf("\r\n")).precomputed();
+    private static final Pattern HORIZONTAL_SPACE = Pattern.compile("^[\t ]*$");
+    private static final Pattern WHITESPACE = Pattern.compile("^\\s*$");
     private final Object value;
 
     ConstantExpressionNode(String resourceName, int lineNumber, Object value) {
@@ -52,11 +52,11 @@ class ConstantExpressionNode extends ExpressionNode {
 
     @Override
     boolean isWhitespace() {
-        return value instanceof String && CharMatcher.whitespace().matchesAllOf((String) value);
+        return value instanceof String && WHITESPACE.matcher((String) value).matches();
     }
 
     @Override
     boolean isHorizontalWhitespace() {
-        return value instanceof String && HORIZONTAL_SPACE.matchesAllOf((String) value);
+        return value instanceof String && HORIZONTAL_SPACE.matcher((String) value).matches();
     }
 }
