@@ -130,7 +130,6 @@ public class AutoValueCompilationTest {
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor())
-                        .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
         String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
                 .orElseThrow().getCharContent(false).toString();
@@ -239,7 +238,6 @@ public class AutoValueCompilationTest {
         Compilation compilation =
                 javac()
                         .withProcessors(new AutoValueProcessor())
-                        .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .compile(javaFileObject);
         String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
                 .orElseThrow().getCharContent(false).toString();
@@ -373,7 +371,7 @@ public class AutoValueCompilationTest {
                 javac()
                         .withProcessors(new AutoValueProcessor())
                         .withOptions(
-                                "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
+                                "-Xlint:-processing", "-implicit:none")
                         .compile(annotFileObject, outerFileObject, nestyFileObject);
         assertThat(compilation).succeededWithoutWarnings();
         String actualOutput = compilation.generatedSourceFile("com.example.AutoValue_Nesty")
@@ -1369,7 +1367,7 @@ public class AutoValueCompilationTest {
                 javac()
                         .withProcessors(new AutoValueProcessor())
                         .withOptions(
-                                "-Xlint:-processing", "-implicit:none", "-A" + Nullables.NULLABLE_OPTION + "=")
+                                "-Xlint:-processing", "-implicit:none")
                         .compile(javaFileObject, nestedJavaFileObject);
         assertThat(compilation).succeededWithoutWarnings();
         String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")

@@ -57,7 +57,6 @@ import static java.util.stream.Collectors.joining;
  * @see <a href="https://github.com/google/auto/tree/master/value">AutoValue User's Guide</a>
  * @author Éamonn McManus
  */
-@SupportedAnnotationTypes(AUTO_VALUE_NAME)
 public class AutoValueProcessor extends AutoValueishProcessor {
     static final String OMIT_IDENTIFIERS_OPTION = "com.google.auto.value.OmitIdentifiers";
 
@@ -70,6 +69,11 @@ public class AutoValueProcessor extends AutoValueishProcessor {
 
     public AutoValueProcessor() {
         this(AutoValueProcessor.class.getClassLoader());
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return Set.of(AUTO_VALUE_NAME);
     }
 
     @VisibleForTesting
@@ -121,37 +125,6 @@ public class AutoValueProcessor extends AutoValueishProcessor {
                 extensions = ImmutableList.of();
             }
         }
-    }
-
-    @Override
-    public ImmutableSet<String> getSupportedOptions() {
-        ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-        AutoValueExtension.IncrementalExtensionType incrementalType =
-                extensions.stream()
-                        .map(e -> e.incrementalType(processingEnv))
-                        .min(naturalOrder())
-                        .orElse(AutoValueExtension.IncrementalExtensionType.ISOLATING);
-        builder
-                .add(OMIT_IDENTIFIERS_OPTION)
-                .add(Nullables.NULLABLE_OPTION)
-                .addAll(optionsFor(incrementalType));
-        for (AutoValueExtension extension : extensions) {
-            builder.addAll(extension.getSupportedOptions());
-        }
-        return builder.build();
-    }
-
-    private static ImmutableSet<String> optionsFor(
-            AutoValueExtension.IncrementalExtensionType incrementalType) {
-        switch (incrementalType) {
-            case ISOLATING:
-                return ImmutableSet.of("org.gradle.annotation.processing.isolating");
-            case AGGREGATING:
-                return ImmutableSet.of("org.gradle.annotation.processing.aggregating");
-            case UNKNOWN:
-                return ImmutableSet.of();
-        }
-        throw new AssertionError(incrementalType);
     }
 
     static String generatedSubclassName(TypeElement type, int depth) {

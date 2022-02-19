@@ -77,17 +77,14 @@ import static com.google.auto.common.MoreElements.isAnnotationPresent;
 import static com.google.auto.common.MoreStreams.toImmutableList;
 import static com.google.auto.common.MoreStreams.toImmutableSet;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_PACKAGE_NAME;
-import static com.google.auto.value.processor.ClassNames.COPY_ANNOTATIONS_NAME;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.google.common.collect.Sets.union;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * Shared code between {@link AutoValueProcessor}, {@link AutoOneOfProcessor}, and {@link
- * AutoBuilderProcessor}.
+ * Shared code between {@link AutoValueProcessor}.
  *
  * @author emcmanus@google.com (Éamonn McManus)
  */
@@ -965,41 +962,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
     }
 
     ImmutableList<String> copiedClassAnnotations(TypeElement type) {
-        // Only copy annotations from a class if it has @AutoValue.CopyAnnotations.
-        if (hasAnnotationMirror(type, COPY_ANNOTATIONS_NAME)) {
-            Set<String> excludedAnnotations =
-                    ImmutableSet.<String>builder()
-                            .addAll(getExcludedAnnotationClassNames(type))
-                            .addAll(getAnnotationsMarkedWithInherited(type))
-                            //
-                            // Kotlin classes have an intrinsic @Metadata annotation generated
-                            // onto them by kotlinc. This annotation is specific to the annotated
-                            // class and should not be implicitly copied. Doing so can mislead
-                            // static analysis or metaprogramming tooling that reads the data
-                            // contained in these annotations.
-                            //
-                            // It may be surprising to see AutoValue classes written in Kotlin
-                            // when they could be written as Kotlin data classes, but this can
-                            // come up in cases where consumers rely on AutoValue features or
-                            // extensions that are not available in data classes.
-                            //
-                            // See: https://github.com/google/auto/issues/1087
-                            //
-                            .add(ClassNames.KOTLIN_METADATA_NAME)
-                            .build();
-
-            return copyAnnotations(type, type, excludedAnnotations);
-        } else {
-            return ImmutableList.of();
-        }
-    }
-
-    /** Implements the semantics of {@code AutoValue.CopyAnnotations}; see its javadoc. */
-    private ImmutableList<String> copyAnnotations(
-            Element autoValueType, Element typeOrMethod, Set<String> excludedAnnotations) {
-        ImmutableList<AnnotationMirror> annotationsToCopy =
-                annotationsToCopy(autoValueType, typeOrMethod, excludedAnnotations);
-        return annotationStrings(annotationsToCopy);
+        return ImmutableList.of();
     }
 
     /**
@@ -1007,18 +970,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
      * {@code TypeMirror} where each type is an annotation type.
      */
     private Set<TypeMirror> getExcludedAnnotationTypes(Element element) {
-        Optional<AnnotationMirror> maybeAnnotation =
-                getAnnotationMirror(element, COPY_ANNOTATIONS_NAME);
-        if (!maybeAnnotation.isPresent()) {
-            return ImmutableSet.of();
-        }
-
-        @SuppressWarnings("unchecked")
-        List<AnnotationValue> excludedClasses =
-                (List<AnnotationValue>) getAnnotationValue(maybeAnnotation.get(), "exclude").getValue();
-        return excludedClasses.stream()
-                .map(annotationValue -> (DeclaredType) annotationValue.getValue())
-                .collect(toCollection(TypeMirrorSet::new));
+        return Set.of();
     }
 
     /**
@@ -1029,13 +981,6 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
         return getExcludedAnnotationTypes(element).stream()
                 .map(MoreTypes::asTypeElement)
                 .map(typeElement -> typeElement.getQualifiedName().toString())
-                .collect(toSet());
-    }
-
-    private static Set<String> getAnnotationsMarkedWithInherited(Element element) {
-        return element.getAnnotationMirrors().stream()
-                .filter(a -> isAnnotationPresent(a.getAnnotationType().asElement(), Inherited.class))
-                .map(a -> getAnnotationFqName(a))
                 .collect(toSet());
     }
 
@@ -1086,34 +1031,7 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
 
     private ImmutableList<AnnotationMirror> propertyFieldAnnotations(
             TypeElement type, ExecutableElement method) {
-        if (!hasAnnotationMirror(method, COPY_ANNOTATIONS_NAME)) {
-            return ImmutableList.of();
-        }
-        ImmutableSet<String> excludedAnnotations =
-                ImmutableSet.<String>builder()
-                        .addAll(getExcludedAnnotationClassNames(method))
-                        .add(Override.class.getCanonicalName())
-                        .build();
-
-        // We need to exclude type annotations from the ones being output on the method, since
-        // they will be output as part of the field's type.
-        Set<String> returnTypeAnnotations =
-                getReturnTypeAnnotations(method, this::annotationAppliesToFields);
-        Set<String> nonFieldAnnotations =
-                method.getAnnotationMirrors().stream()
-                        .map(a -> a.getAnnotationType().asElement())
-                        .map(MoreElements::asType)
-                        .filter(a -> !annotationAppliesToFields(a))
-                        .map(e -> e.getQualifiedName().toString())
-                        .collect(toSet());
-
-        Set<String> excluded =
-                ImmutableSet.<String>builder()
-                        .addAll(excludedAnnotations)
-                        .addAll(returnTypeAnnotations)
-                        .addAll(nonFieldAnnotations)
-                        .build();
-        return annotationsToCopy(type, method, excluded);
+        return ImmutableList.of();
     }
 
     private Set<String> getReturnTypeAnnotations(

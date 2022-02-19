@@ -26,10 +26,6 @@ final class ClassNames {
 
     static final String AUTO_VALUE_PACKAGE_NAME = "com.google.auto.value.";
     static final String AUTO_ANNOTATION_NAME = AUTO_VALUE_PACKAGE_NAME + "AutoAnnotation";
-    static final String AUTO_ONE_OF_NAME = AUTO_VALUE_PACKAGE_NAME + "AutoOneOf";
     static final String AUTO_VALUE_NAME = AUTO_VALUE_PACKAGE_NAME + "AutoValue";
     static final String AUTO_VALUE_BUILDER_NAME = AUTO_VALUE_NAME + ".Builder";
-    static final String AUTO_BUILDER_NAME = AUTO_VALUE_PACKAGE_NAME + "AutoBuilder";
-    static final String COPY_ANNOTATIONS_NAME = AUTO_VALUE_NAME + ".CopyAnnotations";
-    static final String KOTLIN_METADATA_NAME = "kotlin.Metadata";
 }

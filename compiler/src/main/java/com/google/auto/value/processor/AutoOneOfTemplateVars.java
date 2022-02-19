@@ -31,7 +31,7 @@ class AutoOneOfTemplateVars extends AutoValueishTemplateVars {
      * The properties defined by the parent class's abstract methods. The elements of this set are in
      * the same order as the original abstract method declarations in the AutoOneOf class.
      */
-    ImmutableSet<AutoOneOfProcessor.Property> props;
+    ImmutableSet<AutoValueishProcessor.Property> props;
 
     /** The simple name of the generated class. */
     String generatedClass;

@@ -18,8 +18,6 @@ package com.google.auto.value.extension;
 import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -279,82 +277,6 @@ public abstract class AutoValueExtension {
          * {@link ExecutableElement} representing {@code fooBuilder()}.
          */
         Map<String, ExecutableElement> propertyBuilders();
-    }
-
-    /**
-     * Indicates to an annotation processor environment supporting incremental annotation processing
-     * (currently a feature specific to Gradle starting with version 4.8) the incremental type of an
-     * Extension.
-     *
-     * <p>The constants for this enum are ordered by increasing performance (but also constraints).
-     *
-     * @see <a
-     *     href="https://docs.gradle.org/current/userguide/java_plugin.html#sec:incremental_annotation_processing">Gradle
-     *     documentation of its incremental annotation processing</a>
-     */
-    public enum IncrementalExtensionType {
-        /**
-         * The incrementality of this extension is unknown, or it is neither aggregating nor isolating.
-         */
-        UNKNOWN,
-
-        /**
-         * This extension is <i>aggregating</i>, meaning that it may generate outputs based on several
-         * annotated input classes and it respects the constraints imposed on aggregating processors.
-         * It is unusual for AutoValue extensions to be aggregating.
-         *
-         * @see <a
-         *     href="https://docs.gradle.org/current/userguide/java_plugin.html#aggregating_annotation_processors">Gradle
-         *     definition of aggregating processors</a>
-         */
-        AGGREGATING,
-
-        /**
-         * This extension is <i>isolating</i>, meaning roughly that its output depends on the
-         * {@code @AutoValue} class and its dependencies, but not on other {@code @AutoValue} classes
-         * that might be compiled at the same time. The constraints that an isolating extension must
-         * respect are the same as those that Gradle imposes on an isolating annotation processor.
-         *
-         * @see <a
-         *     href="https://docs.gradle.org/current/userguide/java_plugin.html#isolating_annotation_processors">Gradle
-         *     definition of isolating processors</a>
-         */
-        ISOLATING
-    }
-
-    /**
-     * Determines the incremental type of this Extension.
-     *
-     * <p>The {@link ProcessingEnvironment} can be used, among other things, to obtain the processor
-     * options, using {@link ProcessingEnvironment#getOptions()}.
-     *
-     * <p>The actual incremental type of the AutoValue processor as a whole will be the loosest
-     * incremental types of the Extensions present in the annotation processor path. The default
-     * returned value is {@link IncrementalExtensionType#UNKNOWN}, which will disable incremental
-     * annotation processing entirely.
-     */
-    public IncrementalExtensionType incrementalType(ProcessingEnvironment processingEnvironment) {
-        return IncrementalExtensionType.UNKNOWN;
-    }
-
-    /**
-     * Analogous to {@link Processor#getSupportedOptions()}, here to allow extensions to report their
-     * own.
-     *
-     * <p>By default, if the extension class is annotated with {@link SupportedOptions}, this will
-     * return a set with the strings in the annotation. If the class is not so annotated, an empty set
-     * is returned.
-     *
-     * @return the set of options recognized by this extension or an empty set if none
-     * @see SupportedOptions
-     */
-    public Set<String> getSupportedOptions() {
-        SupportedOptions so = this.getClass().getAnnotation(SupportedOptions.class);
-        if (so == null) {
-            return ImmutableSet.of();
-        } else {
-            return ImmutableSet.copyOf(so.value());
-        }
     }
 
     /**

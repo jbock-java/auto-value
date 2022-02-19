@@ -46,7 +46,7 @@ class Nullables {
     /**
      * If set to a non-empty string, defines which {@code @Nullable} type annotation should be used by
      * default. If set to an empty string, does not insert {@code @Nullable} unless it is referenced
-     * in the {@code @AutoValue} methods. If unset, defaults to {@value #DEFAULT_NULLABLE}.
+     * in the {@code @AutoValue} methods. If unset, defaults to {@code #DEFAULT_NULLABLE}.
      */
     static final String NULLABLE_OPTION = "com.google.auto.value.NullableTypeAnnotation";
 
@@ -57,9 +57,7 @@ class Nullables {
 
     Nullables(ProcessingEnvironment processingEnv) {
         // -Afoo without `=` sets "foo" to null in the getOptions() map.
-        String nullableOption =
-                Strings.nullToEmpty(
-                        processingEnv.getOptions().getOrDefault(NULLABLE_OPTION, DEFAULT_NULLABLE));
+        String nullableOption = DEFAULT_NULLABLE;
         this.defaultNullable =
                 (!nullableOption.isEmpty()
                         && processingEnv.getSourceVersion().ordinal() >= SourceVersion.RELEASE_8.ordinal())

@@ -28,9 +28,7 @@ import org.junit.runners.JUnit4;
 import javax.annotation.Nullable;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -287,7 +285,6 @@ public class PropertyAnnotationsTest {
 
         Compilation compilation =
                 javac()
-                        .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
                         .withProcessors(new AutoValueProcessor())
                         .compile(javaFileObject);
         assertThat(compilation).succeeded();
@@ -502,88 +499,5 @@ public class PropertyAnnotationsTest {
                 ImmutableList.of(
                         TEST_ARRAY_ANNOTATION
                                 + "(testAnnotations = @PropertyAnnotationsTest.OtherAnnotation(foo = 999))"));
-    }
-
-    /**
-     * Tests that when CopyAnnotations is present on a method, all non-inherited annotations (except
-     * those appearing in CopyAnnotations.exclude) are copied to the method implementation in the
-     * generated class.
-     */
-    @Test
-    public void testCopyingMethodAnnotations() throws IOException {
-        ImmutableSet<String> imports = getImports(PropertyAnnotationsTest.class);
-        JavaFileObject inputFile =
-                new InputFileBuilder()
-                        .setImports(imports)
-                        .addAnnotations(
-                                "@AutoValue.CopyAnnotations(exclude="
-                                        + "{PropertyAnnotationsTest.TestAnnotation.class})",
-                                "@Deprecated",
-                                "@PropertyAnnotationsTest.TestAnnotation",
-                                "@PropertyAnnotationsTest.InheritedAnnotation")
-                        .build();
-
-        // Annotations are in lexicographical order of FQN:
-        // @com.google.auto.value.processor.PropertyAnnotationsTest.InheritedAnnotation precedes
-        // @java.lang.Deprecated
-        String[] outputFile =
-                new OutputFileBuilder()
-                        .setImports(imports)
-                        .addMethodAnnotations("@PropertyAnnotationsTest.InheritedAnnotation", "@Deprecated")
-                        .addFieldAnnotations("@PropertyAnnotationsTest.InheritedAnnotation", "@Deprecated")
-                        .build();
-
-        Compilation compilation =
-                javac()
-                        .withOptions("-A" + Nullables.NULLABLE_OPTION)
-                        .withProcessors(new AutoValueProcessor())
-                        .compile(inputFile);
-        assertThat(compilation).succeeded();
-        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
-                .orElseThrow().getCharContent(false).toString();
-        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(outputFile));
-    }
-
-    /**
-     * Tests that when CopyAnnotationsToGeneratedField is present on a method, all non-inherited
-     * annotations (except those appearing in CopyAnnotationsToGeneratedField.exclude) are copied to
-     * the method implementation in the generated class.
-     */
-    @Test
-    public void testCopyingMethodAnnotationsToGeneratedFields() throws IOException {
-        JavaFileObject inputFile =
-                new InputFileBuilder()
-                        .setImports(getImports(PropertyAnnotationsTest.class, Target.class, ElementType.class))
-                        .addAnnotations(
-                                "@AutoValue.CopyAnnotations(exclude={PropertyAnnotationsTest."
-                                        + "TestAnnotation.class})",
-                                "@Deprecated",
-                                "@PropertyAnnotationsTest.TestAnnotation",
-                                "@PropertyAnnotationsTest.InheritedAnnotation",
-                                "@MethodsOnly")
-                        .addInnerTypes("@Target(ElementType.METHOD) @interface MethodsOnly {}")
-                        .build();
-
-        // Annotations are in lexicographical order of FQN:
-        // @com.google.auto.value.processor.PropertyAnnotationsTest.InheritedAnnotation precedes
-        // @foo.bar.Baz.MethodsOnly precedes
-        // @java.lang.Deprecated
-        String[] outputFile =
-                new OutputFileBuilder()
-                        .setImports(getImports(PropertyAnnotationsTest.class))
-                        .addFieldAnnotations("@PropertyAnnotationsTest.InheritedAnnotation", "@Deprecated")
-                        .addMethodAnnotations(
-                                "@PropertyAnnotationsTest.InheritedAnnotation", "@Baz.MethodsOnly", "@Deprecated")
-                        .build();
-
-        Compilation compilation =
-                javac()
-                        .withOptions("-A" + Nullables.NULLABLE_OPTION + "=")
-                        .withProcessors(new AutoValueProcessor())
-                        .compile(inputFile);
-        assertThat(compilation).succeeded();
-        String actualOutput = compilation.generatedSourceFile("foo.bar.AutoValue_Baz")
-                .orElseThrow().getCharContent(false).toString();
-        MatcherAssert.assertThat(actualOutput.lines().toArray(), is(outputFile));
     }
 }

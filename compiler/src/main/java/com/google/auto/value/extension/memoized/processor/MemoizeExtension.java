@@ -34,7 +34,6 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 
 import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -103,11 +102,6 @@ public final class MemoizeExtension extends AutoValueExtension {
 
     private static final AnnotationSpec SUPPRESS_WARNINGS =
             AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "$S", "Immutable").build();
-
-    @Override
-    public IncrementalExtensionType incrementalType(ProcessingEnvironment processingEnvironment) {
-        return IncrementalExtensionType.ISOLATING;
-    }
 
     @Override
     public boolean applicable(Context context) {

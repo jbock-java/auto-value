@@ -41,7 +41,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 @SupportedAnnotationTypes(MEMOIZED_NAME)
 public final class MemoizedValidator extends AbstractProcessor {
     @Override
-    public final boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Messager messager = processingEnv.getMessager();
         TypeElement memoized = processingEnv.getElementUtils().getTypeElement(MEMOIZED_NAME);
         for (ExecutableElement method : methodsIn(roundEnv.getElementsAnnotatedWith(memoized))) {
