@@ -16,9 +16,9 @@
 package com.google.auto.value.processor;
 
 
-import com.google.auto.common.Equivalence;
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.Equivalence;
+import io.jbock.auto.common.MoreElements;
+import io.jbock.auto.common.MoreTypes;
 import com.google.auto.value.base.Preconditions;
 
 import javax.lang.model.element.ExecutableElement;

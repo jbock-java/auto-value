@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreElements;
+import io.jbock.auto.common.MoreElements;
 import com.google.auto.value.base.Util;
 
 import javax.annotation.processing.ProcessingEnvironment;

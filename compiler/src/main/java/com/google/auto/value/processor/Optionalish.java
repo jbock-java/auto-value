@@ -15,8 +15,8 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.MoreElements;
+import io.jbock.auto.common.MoreTypes;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;

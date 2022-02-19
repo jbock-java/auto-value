@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.MoreTypes;
 import com.google.auto.value.processor.MissingTypes.MissingTypeException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

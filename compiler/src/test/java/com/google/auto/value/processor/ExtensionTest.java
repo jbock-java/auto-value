@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.MoreTypes;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.auto.value.extension.AutoValueExtension.BuilderContext;
 import com.google.common.base.Joiner;

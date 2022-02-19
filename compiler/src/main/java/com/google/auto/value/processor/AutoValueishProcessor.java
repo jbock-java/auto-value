@@ -15,9 +15,9 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
-import com.google.auto.common.Visibility;
+import io.jbock.auto.common.MoreElements;
+import io.jbock.auto.common.MoreTypes;
+import io.jbock.auto.common.Visibility;
 import com.google.auto.value.base.ListMultimap;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.processor.MissingTypes.MissingTypeException;
@@ -69,8 +69,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
-import static com.google.auto.common.MoreElements.getPackage;
+import static io.jbock.auto.common.AnnotationMirrors.getAnnotationValue;
+import static io.jbock.auto.common.MoreElements.getPackage;
 import static com.google.auto.value.base.Util.getOnlyElement;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_PACKAGE_NAME;
 import static java.util.stream.Collectors.joining;

@@ -39,10 +39,10 @@ import java.util.ServiceConfigurationError;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.auto.common.MoreElements.getLocalAndInheritedMethods;
 import static com.google.auto.value.base.Util.intersection;
 import static com.google.auto.value.base.Util.inverse;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
+import static io.jbock.auto.common.MoreElements.getLocalAndInheritedMethods;
 import static java.util.stream.Collectors.joining;
 
 /**

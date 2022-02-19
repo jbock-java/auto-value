@@ -15,10 +15,10 @@
  */
 package com.google.auto.value.extension.memoized.processor;
 
-import com.google.auto.common.Equivalence;
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
-import com.google.auto.common.Visibility;
+import io.jbock.auto.common.Equivalence;
+import io.jbock.auto.common.MoreElements;
+import io.jbock.auto.common.MoreTypes;
+import io.jbock.auto.common.Visibility;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
 import io.jbock.javapoet.AnnotationSpec;
@@ -54,9 +54,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.auto.common.AnnotationMirrors.getAnnotationValue;
-import static com.google.auto.common.MoreElements.getPackage;
-import static com.google.auto.common.MoreElements.isAnnotationPresent;
+import static io.jbock.auto.common.AnnotationMirrors.getAnnotationValue;
+import static io.jbock.auto.common.MoreElements.getPackage;
+import static io.jbock.auto.common.MoreElements.isAnnotationPresent;
 import static com.google.auto.value.base.Util.getOnlyElement;
 import static com.google.auto.value.base.Util.union;
 import static com.google.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;

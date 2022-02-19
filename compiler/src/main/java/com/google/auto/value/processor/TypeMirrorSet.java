@@ -15,8 +15,8 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.Equivalence;
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.Equivalence;
+import io.jbock.auto.common.MoreTypes;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.AbstractSet;

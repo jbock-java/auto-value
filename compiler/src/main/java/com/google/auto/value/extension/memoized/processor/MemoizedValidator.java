@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.extension.memoized.processor;
 
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.MoreTypes;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;

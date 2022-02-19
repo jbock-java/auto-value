@@ -15,8 +15,8 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
+import io.jbock.auto.common.MoreElements;
+import io.jbock.auto.common.MoreTypes;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.google.auto.value.processor.AutoValueishProcessor.Property;
@@ -45,7 +45,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.google.auto.common.MoreElements.getLocalAndInheritedMethods;
+import static io.jbock.auto.common.MoreElements.getLocalAndInheritedMethods;
 import static com.google.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
 import static com.google.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
 import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;

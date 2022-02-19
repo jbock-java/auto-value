@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.auto.common.SuperficialValidation;
+import io.jbock.auto.common.SuperficialValidation;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
