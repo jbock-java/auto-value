@@ -1,2 +1,2 @@
-include 'core'
+include 'auto-value-annotations'
 include 'compiler'

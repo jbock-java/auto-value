@@ -5,35 +5,32 @@ die () {
     exit 1
 }
 
-usage="Usage: release [core|compiler] <version>"
-
-if [[ `git status --porcelain` ]]; then
+if [[ $(git status --porcelain) ]]; then
   die "dirty workspace"
 fi
 
-MODULE="$1"
-VERSION="$2"
+VERSION="$1"
 
 if [[ -z "$VERSION" ]]; then
-  die "$usage"
+  die "Usage: release <version>"
 fi
 
-if [[ "compiler" == "$MODULE" ]]; then
- greppy=$(./gradlew compiler:dependencies --configuration compileClasspath | fgrep "auto-value-annotations:$VERSION")
- test -z "$greppy" && die "compiler should depend on auto-value-annotations:$VERSION"
+if ! git pull origin $(git rev-parse --abbrev-ref HEAD); then
+  die "pull failed"
 fi
 
-git pull origin $(git rev-parse --abbrev-ref HEAD)
-./gradlew clean -Pversion=${VERSION} ${MODULE}:publish
+if ! ./gradlew clean -Pversion=${VERSION} auto-value-annotations:publish; then
+  die "build failed"
+fi
 
-if [[ "compiler" != "$MODULE" ]]; then
-  echo "Upload successful."
-  exit
+
+if ! ./gradlew clean -Pversion=${VERSION} compiler:publish; then
+  die "build failed"
 fi
 
 read -e -p "Upload successful. Also tag? [y/N]"
 if [[ "$REPLY" == [Yy]* ]]; then
-  git tag "v${VERSION}"
+  git tag "${VERSION}"
   git push origin --tags
 fi
 
