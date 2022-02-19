@@ -19,14 +19,7 @@ import com.google.auto.value.base.ListMultimap;
 import com.google.auto.value.base.Util;
 import com.google.auto.value.base.Verify;
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.ForwardingSortedSet;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.primitives.Ints;
 import com.google.escapevelocity.DirectiveNode.ForEachNode;
 import com.google.escapevelocity.DirectiveNode.IfNode;
 import com.google.escapevelocity.DirectiveNode.SetNode;
@@ -54,6 +47,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.google.auto.value.base.Preconditions.checkArgument;
 
@@ -1143,22 +1137,9 @@ class Parser {
         Object evaluate(EvaluationContext context) {
             int from = first.intValue(context);
             int to = last.intValue(context);
-            ImmutableSortedSet<Integer> set =
-                    (from <= to)
-                            ? ContiguousSet.closed(from, to)
-                            : ContiguousSet.closed(to, from).descendingSet();
-            return new ForwardingSortedSet<Integer>() {
-                @Override
-                protected ImmutableSortedSet<Integer> delegate() {
-                    return set;
-                }
-
-                @Override
-                public String toString() {
-                    // ContiguousSet returns [1..3] whereas Velocity uses [1, 2, 3].
-                    return set.asList().toString();
-                }
-            };
+            return (from <= to)
+                    ? IntStream.range(from, to + 1).boxed().collect(Collectors.toList())
+                    : Util.reverse(IntStream.range(to, from + 1).boxed().collect(Collectors.toList()));
         }
     }
 
