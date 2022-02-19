@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
-import com.google.escapevelocity.Parser.Operator;
+import io.jbock.escapevelocity.Parser.Operator;
 
 /**
  * A node in the parse tree representing an expression. Expressions appear inside directives,

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension.memoized.processor;
+package io.jbock.auto.value.extension.memoized.processor;
 
 import io.jbock.auto.common.MoreTypes;
 
@@ -30,7 +30,7 @@ import javax.lang.model.element.TypeElement;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
+import static io.jbock.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
 import static javax.lang.model.util.ElementFilter.methodsIn;
 import static javax.tools.Diagnostic.Kind.ERROR;
 

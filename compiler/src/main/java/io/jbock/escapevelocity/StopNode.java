@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
 /**
  * A parsing node that represents the end of a span, such as the {@code #end} after the body of a

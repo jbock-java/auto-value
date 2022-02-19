@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
-import com.google.auto.value.base.ListMultimap;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.extension.AutoValueExtension;
+import io.jbock.auto.value.base.ListMultimap;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.extension.AutoValueExtension;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -39,10 +39,10 @@ import java.util.ServiceConfigurationError;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.auto.value.base.Util.intersection;
-import static com.google.auto.value.base.Util.inverse;
-import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
 import static io.jbock.auto.common.MoreElements.getLocalAndInheritedMethods;
+import static io.jbock.auto.value.base.Util.intersection;
+import static io.jbock.auto.value.base.Util.inverse;
+import static io.jbock.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
 import static java.util.stream.Collectors.joining;
 
 /**

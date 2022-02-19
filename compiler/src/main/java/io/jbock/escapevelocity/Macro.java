@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
-import com.google.auto.value.base.Verify;
+import io.jbock.auto.value.base.Verify;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;

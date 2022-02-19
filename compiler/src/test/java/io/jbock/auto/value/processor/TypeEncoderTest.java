@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.MoreTypes;
-import com.google.auto.value.processor.MissingTypes.MissingTypeException;
+import io.jbock.auto.value.processor.MissingTypes.MissingTypeException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.testing.compile.Compilation;
@@ -240,7 +240,7 @@ public class TypeEncoderTest {
     public void testSimplifyJavaLangNamesake() {
         TypeMirror javaLangType = typeMirrorOf(java.lang.RuntimePermission.class);
         TypeMirror notJavaLangType =
-                typeMirrorOf(com.google.auto.value.processor.testclasses.RuntimePermission.class);
+                typeMirrorOf(io.jbock.auto.value.processor.testclasses.RuntimePermission.class);
         Set<TypeMirror> types = typeMirrorSet(javaLangType, notJavaLangType);
         assertTypeImportsAndSpellings(
                 types,

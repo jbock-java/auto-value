@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
-import com.google.auto.value.base.Util;
+import io.jbock.auto.value.base.Util;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;

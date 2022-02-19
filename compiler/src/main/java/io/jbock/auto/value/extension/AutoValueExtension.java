@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension;
+package io.jbock.auto.value.extension;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -31,7 +31,7 @@ import java.util.Set;
  * allowing them to run without any additional annotations. To be found by {@code ServiceLoader}, an
  * extension class must be public with a public no-arg constructor, and its fully-qualified name
  * must appear in a file called {@code
- * META-INF/services/com.google.auto.value.extension.AutoValueExtension} in a jar that is on the
+ * META-INF/services/io.jbock.auto.value.extension.AutoValueExtension} in a jar that is on the
  * compiler's {@code -classpath} or {@code -processorpath}.
  *
  * <p>When the AutoValue processor runs for a class {@code Foo}, it will ask each Extension whether

@@ -1,4 +1,4 @@
-package com.google.auto.value.base;
+package io.jbock.auto.value.base;
 
 public class Verify {
 

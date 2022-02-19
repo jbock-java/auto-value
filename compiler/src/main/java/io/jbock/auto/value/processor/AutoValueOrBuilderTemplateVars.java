@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
-import com.google.auto.value.base.ListMultimap;
-import com.google.auto.value.processor.AutoValueishProcessor.Property;
-import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
+import io.jbock.auto.value.base.ListMultimap;
+import io.jbock.auto.value.processor.AutoValueishProcessor.Property;
+import io.jbock.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.util.Types;
@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Variables to substitute into the autovalue.vm or builder.vm template.
+ * Variables to substitute into the autovalue.vm template.
  *
  * @author emcmanus@google.com (Éamonn McManus)
  */

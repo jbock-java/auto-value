@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.auto.value.extension.memoized;
+package io.jbock.auto.value.extension.memoized;
 
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;

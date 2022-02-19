@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.MoreTypes;
-import com.google.auto.value.extension.AutoValueExtension;
-import com.google.auto.value.extension.AutoValueExtension.BuilderContext;
+import io.jbock.auto.value.extension.AutoValueExtension;
+import io.jbock.auto.value.extension.AutoValueExtension.BuilderContext;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -124,7 +124,7 @@ public class ExtensionTest {
                         "",
                         GeneratedImport.importGeneratedAnnotationType(),
                         "",
-                        "@Generated(\"com.google.auto.value.processor.AutoValueProcessor\")",
+                        "@Generated(\"io.jbock.auto.value.processor.AutoValueProcessor\")",
                         "abstract class $AutoValue_Baz extends Baz {",
                         "",
                         "  private final String foo;",

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -317,7 +317,7 @@ public class AutoValueCompilationTest {
                         "import foo.baz.OuterWithTypeParam;",
                         GeneratedImport.importGeneratedAnnotationType(),
                         "",
-                        "@Generated(\"com.google.auto.value.processor.AutoValueProcessor\")",
+                        "@Generated(\"io.jbock.auto.value.processor.AutoValueProcessor\")",
                         "final class AutoValue_Nesty extends Nesty {",
                         "",
                         "  private final @Annot(1) OuterWithTypeParam<@Annot(2) Double>"

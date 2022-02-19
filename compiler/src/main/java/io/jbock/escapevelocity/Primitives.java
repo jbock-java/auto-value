@@ -12,12 +12,11 @@
  * the License.
  */
 
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;

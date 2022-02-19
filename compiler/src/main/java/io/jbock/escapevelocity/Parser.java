@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
-import com.google.auto.value.base.ListMultimap;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.base.Verify;
-import com.google.escapevelocity.DirectiveNode.ForEachNode;
-import com.google.escapevelocity.DirectiveNode.IfNode;
-import com.google.escapevelocity.DirectiveNode.SetNode;
-import com.google.escapevelocity.ExpressionNode.BinaryExpressionNode;
-import com.google.escapevelocity.ExpressionNode.NotExpressionNode;
-import com.google.escapevelocity.ReferenceNode.IndexReferenceNode;
-import com.google.escapevelocity.ReferenceNode.MemberReferenceNode;
-import com.google.escapevelocity.ReferenceNode.MethodReferenceNode;
-import com.google.escapevelocity.ReferenceNode.PlainReferenceNode;
-import com.google.escapevelocity.StopNode.ElseIfNode;
-import com.google.escapevelocity.StopNode.ElseNode;
-import com.google.escapevelocity.StopNode.EndNode;
-import com.google.escapevelocity.StopNode.EofNode;
+import io.jbock.auto.value.base.ListMultimap;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.base.Verify;
+import io.jbock.escapevelocity.DirectiveNode.ForEachNode;
+import io.jbock.escapevelocity.DirectiveNode.IfNode;
+import io.jbock.escapevelocity.DirectiveNode.SetNode;
+import io.jbock.escapevelocity.ExpressionNode.BinaryExpressionNode;
+import io.jbock.escapevelocity.ExpressionNode.NotExpressionNode;
+import io.jbock.escapevelocity.ReferenceNode.IndexReferenceNode;
+import io.jbock.escapevelocity.ReferenceNode.MemberReferenceNode;
+import io.jbock.escapevelocity.ReferenceNode.MethodReferenceNode;
+import io.jbock.escapevelocity.ReferenceNode.PlainReferenceNode;
+import io.jbock.escapevelocity.StopNode.ElseIfNode;
+import io.jbock.escapevelocity.StopNode.ElseNode;
+import io.jbock.escapevelocity.StopNode.EndNode;
+import io.jbock.escapevelocity.StopNode.EofNode;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.google.auto.value.base.Preconditions.checkArgument;
+import static io.jbock.auto.value.base.Preconditions.checkArgument;
 
 /**
  * A parser that reads input from the given {@link Reader} and parses it to produce a

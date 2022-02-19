@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.MoreElements;
 import io.jbock.auto.common.MoreTypes;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.extension.AutoValueExtension;
-import com.google.auto.value.processor.AutoValueishProcessor.Property;
-import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.extension.AutoValueExtension;
+import io.jbock.auto.value.processor.AutoValueishProcessor.Property;
+import io.jbock.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -46,9 +46,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.jbock.auto.common.MoreElements.getLocalAndInheritedMethods;
-import static com.google.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
-import static com.google.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
-import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
+import static io.jbock.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
+import static io.jbock.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
+import static io.jbock.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static javax.lang.model.util.ElementFilter.methodsIn;

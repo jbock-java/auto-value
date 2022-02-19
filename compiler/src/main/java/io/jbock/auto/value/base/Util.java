@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.auto.value.base;
+package io.jbock.auto.value.base;
 
 import java.util.ArrayList;
 import java.util.Collection;

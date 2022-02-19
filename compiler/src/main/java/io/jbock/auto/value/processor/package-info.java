@@ -15,4 +15,4 @@
  * This package contains the annotation processor that implements the {@link
  * io.jbock.auto.value.AutoValue} API.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.SuperficialValidation;
 
@@ -26,9 +26,9 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.Set;
 
-import static com.google.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
-import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
-import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
+import static io.jbock.auto.value.processor.AutoValueishProcessor.hasAnnotationMirror;
+import static io.jbock.auto.value.processor.ClassNames.AUTO_VALUE_BUILDER_NAME;
+import static io.jbock.auto.value.processor.ClassNames.AUTO_VALUE_NAME;
 
 /**
  * Annotation processor that checks that the type that {@code AutoValue.Builder} is applied to is

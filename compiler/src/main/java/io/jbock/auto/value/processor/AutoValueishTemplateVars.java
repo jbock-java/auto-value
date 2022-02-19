@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import java.util.List;
 
 /**
- * The variables to substitute into the autovalue.vm, autooneof.vm, or builder.vm templates.
+ * The variables to substitute into the autovalue.vm templates.
  *
  * @author emcmanus@google.com (Éamonn McManus)
  */

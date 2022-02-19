@@ -1,4 +1,4 @@
-package com.google.auto.value.extension.memoized;
+package io.jbock.auto.value.extension.memoized;
 
 import javax.annotation.processing.Generated;
 

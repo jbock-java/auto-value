@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.MoreElements;
 import io.jbock.auto.common.MoreTypes;
-import com.google.auto.value.processor.MissingTypes.MissingTypeException;
+import io.jbock.auto.value.processor.MissingTypes.MissingTypeException;
 
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;

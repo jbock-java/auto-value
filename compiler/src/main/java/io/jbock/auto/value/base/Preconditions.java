@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.google.auto.value.base;
+package io.jbock.auto.value.base;
 
 public final class Preconditions {
   private Preconditions() {

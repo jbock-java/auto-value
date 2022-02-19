@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.MoreElements;
 import io.jbock.auto.common.MoreTypes;
 import io.jbock.auto.common.Visibility;
-import com.google.auto.value.base.ListMultimap;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.processor.MissingTypes.MissingTypeException;
+import io.jbock.auto.value.base.ListMultimap;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.processor.MissingTypes.MissingTypeException;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -71,8 +71,8 @@ import java.util.stream.IntStream;
 
 import static io.jbock.auto.common.AnnotationMirrors.getAnnotationValue;
 import static io.jbock.auto.common.MoreElements.getPackage;
-import static com.google.auto.value.base.Util.getOnlyElement;
-import static com.google.auto.value.processor.ClassNames.AUTO_VALUE_PACKAGE_NAME;
+import static io.jbock.auto.value.base.Util.getOnlyElement;
+import static io.jbock.auto.value.processor.ClassNames.AUTO_VALUE_PACKAGE_NAME;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -962,14 +962,6 @@ abstract class AutoValueishProcessor extends AbstractProcessor {
      * {@code TypeMirror} where each type is an annotation type.
      */
     private Set<TypeMirror> getExcludedAnnotationTypes(Element element) {
-        return Set.of();
-    }
-
-    /**
-     * Returns the contents of the {@code AutoValue.CopyAnnotations.exclude} element, as a set of
-     * strings that are fully-qualified class names.
-     */
-    private Set<String> getExcludedAnnotationClassNames(Element element) {
         return Set.of();
     }
 

@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.processor;
+package io.jbock.auto.value.processor;
 
 import io.jbock.auto.common.Equivalence;
 import io.jbock.auto.common.MoreElements;
 import io.jbock.auto.common.MoreTypes;
-import com.google.auto.value.base.ListMultimap;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.processor.BuilderSpec.Copier;
-import com.google.auto.value.processor.BuilderSpec.PropertySetter;
-import com.google.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
+import io.jbock.auto.value.base.ListMultimap;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.processor.BuilderSpec.Copier;
+import io.jbock.auto.value.processor.BuilderSpec.PropertySetter;
+import io.jbock.auto.value.processor.PropertyBuilderClassifier.PropertyBuilder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.google.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
+import static io.jbock.auto.value.processor.AutoValueishProcessor.nullableAnnotationFor;
 
 /**
  * Classifies methods inside builder types, based on their names and parameter and return types.

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.auto.value.extension.memoized;
+package io.jbock.auto.value.extension.memoized;
 
-import com.google.auto.value.extension.memoized.processor.MemoizeExtension;
-import com.google.auto.value.processor.AutoValueProcessor;
+import io.jbock.auto.value.extension.memoized.processor.MemoizeExtension;
+import io.jbock.auto.value.processor.AutoValueProcessor;
 import com.google.common.collect.ImmutableList;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;

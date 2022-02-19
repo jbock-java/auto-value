@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension.memoized;
+package io.jbock.auto.value.extension.memoized;
 
-import com.google.auto.value.extension.memoized.processor.MemoizedValidator;
+import io.jbock.auto.value.extension.memoized.processor.MemoizedValidator;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4;
 
 import javax.tools.JavaFileObject;
 
-import static com.google.auto.value.extension.memoized.MemoizedMethodSubjectFactory.assertThatMemoizeMethod;
+import static io.jbock.auto.value.extension.memoized.MemoizedMethodSubjectFactory.assertThatMemoizeMethod;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension.memoized.processor;
+package io.jbock.auto.value.extension.memoized.processor;
 
 import io.jbock.auto.common.Equivalence;
 import io.jbock.auto.common.MoreElements;
 import io.jbock.auto.common.MoreTypes;
 import io.jbock.auto.common.Visibility;
-import com.google.auto.value.base.Util;
-import com.google.auto.value.extension.AutoValueExtension;
+import io.jbock.auto.value.base.Util;
+import io.jbock.auto.value.extension.AutoValueExtension;
 import io.jbock.javapoet.AnnotationSpec;
 import io.jbock.javapoet.ClassName;
 import io.jbock.javapoet.CodeBlock;
@@ -57,10 +57,10 @@ import java.util.stream.Collectors;
 import static io.jbock.auto.common.AnnotationMirrors.getAnnotationValue;
 import static io.jbock.auto.common.MoreElements.getPackage;
 import static io.jbock.auto.common.MoreElements.isAnnotationPresent;
-import static com.google.auto.value.base.Util.getOnlyElement;
-import static com.google.auto.value.base.Util.union;
-import static com.google.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
-import static com.google.auto.value.extension.memoized.processor.MemoizedValidator.getAnnotationMirror;
+import static io.jbock.auto.value.base.Util.getOnlyElement;
+import static io.jbock.auto.value.base.Util.union;
+import static io.jbock.auto.value.extension.memoized.processor.ClassNames.MEMOIZED_NAME;
+import static io.jbock.auto.value.extension.memoized.processor.MemoizedValidator.getAnnotationMirror;
 import static io.jbock.javapoet.MethodSpec.constructorBuilder;
 import static io.jbock.javapoet.MethodSpec.methodBuilder;
 import static io.jbock.javapoet.TypeSpec.classBuilder;

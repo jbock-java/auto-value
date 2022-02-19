@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.auto.value.extension.memoized.processor;
+package io.jbock.auto.value.extension.memoized.processor;
 
 /** Names of classes that are referenced in the processor/extension. */
 final class ClassNames {

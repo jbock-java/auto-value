@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.escapevelocity;
+package io.jbock.escapevelocity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Primitives;
 import com.google.common.truth.Expect;
-import com.google.escapevelocity.ReferenceNode.MethodReferenceNode;
+import io.jbock.escapevelocity.ReferenceNode.MethodReferenceNode;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
