@@ -18,7 +18,6 @@ package com.google.auto.value.processor;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.google.auto.value.processor.MissingTypes.MissingTypeException;
-import com.google.common.collect.ImmutableSortedSet;
 
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
@@ -41,6 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toCollection;
@@ -107,14 +108,14 @@ final class TypeSimplifier {
      * import java.util.Map.Entry and refer to the property as Entry. We could also import just
      * java.util.Map in this case and refer to Map.Entry, but currently we never do that.
      */
-    ImmutableSortedSet<String> typesToImport() {
-        ImmutableSortedSet.Builder<String> typesToImport = ImmutableSortedSet.naturalOrder();
+    SortedSet<String> typesToImport() {
+        SortedSet<String> typesToImport = new TreeSet<>();
         for (Map.Entry<String, Spelling> entry : imports.entrySet()) {
             if (entry.getValue().importIt) {
                 typesToImport.add(entry.getKey());
             }
         }
-        return typesToImport.build();
+        return typesToImport;
     }
 
     String simplifiedClassName(DeclaredType type) {

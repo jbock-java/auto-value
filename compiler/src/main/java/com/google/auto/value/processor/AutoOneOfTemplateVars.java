@@ -15,10 +15,10 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.escapevelocity.Template;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The variables to substitute into the autooneof.vm template.
@@ -31,7 +31,7 @@ class AutoOneOfTemplateVars extends AutoValueishTemplateVars {
      * The properties defined by the parent class's abstract methods. The elements of this set are in
      * the same order as the original abstract method declarations in the AutoOneOf class.
      */
-    ImmutableSet<AutoValueishProcessor.Property> props;
+    Set<AutoValueishProcessor.Property> props;
 
     /** The simple name of the generated class. */
     String generatedClass;

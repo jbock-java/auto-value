@@ -39,7 +39,6 @@ tasks.withType(GenerateModuleMetadata) {
 
 dependencies {
     implementation(project(':auto-value-annotations'))
-    implementation('io.github.jbock-java:guava:31.0.1.0')
     implementation('io.github.jbock-java:auto-common:1.2.1')
     implementation('io.github.jbock-java:javapoet:1.14')
     testImplementation('com.google.errorprone:error_prone_type_annotations:2.10.0')

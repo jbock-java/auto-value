@@ -15,7 +15,6 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -48,7 +47,7 @@ public final class SimpleServiceLoaderTest {
                 loaderForJarWithEntries(
                         CharSequence.class.getName(), String.class.getName(), StringBuilder.class.getName());
 
-        ImmutableList<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
+        List<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
 
         // The provider entry for java.lang.String should have caused us to call new String(), which
         // will produce this "" in the providers.
@@ -78,7 +77,7 @@ public final class SimpleServiceLoaderTest {
                     }
                 };
 
-        ImmutableList<CharSequence> providers =
+        List<CharSequence> providers =
                 SimpleServiceLoader.load(CharSequence.class, combinedLoader);
 
         assertThat(providers).contains("");
@@ -96,7 +95,7 @@ public final class SimpleServiceLoaderTest {
                         "   # this is also a comment",
                         "  java.lang.String  # this is a comment after a class name");
 
-        ImmutableList<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
+        List<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
 
         assertThat(providers).containsExactly("");
     }
@@ -107,8 +106,8 @@ public final class SimpleServiceLoaderTest {
                 loaderForJarWithEntries(
                         CharSequence.class.getName(), String.class.getName(), StringBuilder.class.getName());
 
-        ImmutableList<CharSequence> providers1 = SimpleServiceLoader.load(CharSequence.class, loader);
-        ImmutableList<CharSequence> providers2 = SimpleServiceLoader.load(CharSequence.class, loader);
+        List<CharSequence> providers1 = SimpleServiceLoader.load(CharSequence.class, loader);
+        List<CharSequence> providers2 = SimpleServiceLoader.load(CharSequence.class, loader);
 
         List<Class<?>> classes1 = providers1.stream().map(Object::getClass).collect(toList());
         List<Class<?>> classes2 = providers2.stream().map(Object::getClass).collect(toList());
@@ -122,12 +121,12 @@ public final class SimpleServiceLoaderTest {
                         CharSequence.class.getName(), String.class.getName(), StringBuilder.class.getName());
         ClassLoader loader1 = new URLClassLoader(new URL[]{jarUrl});
 
-        ImmutableList<CharSequence> providers1 = SimpleServiceLoader.load(CharSequence.class, loader1);
+        List<CharSequence> providers1 = SimpleServiceLoader.load(CharSequence.class, loader1);
         // We should have called `new String()`, so the result should contain "".
         assertThat(providers1).contains("");
 
         ClassLoader loader2 = new URLClassLoader(new URL[]{jarUrl});
-        ImmutableList<CharSequence> providers2 = SimpleServiceLoader.load(CharSequence.class, loader2);
+        List<CharSequence> providers2 = SimpleServiceLoader.load(CharSequence.class, loader2);
 
         List<Class<?>> classes1 = providers1.stream().map(Object::getClass).collect(toList());
         List<Class<?>> classes2 = providers2.stream().map(Object::getClass).collect(toList());
@@ -138,7 +137,7 @@ public final class SimpleServiceLoaderTest {
     public void noProviders() throws Exception {
         ClassLoader loader = loaderForJarWithEntries(CharSequence.class.getName());
 
-        ImmutableList<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
+        List<CharSequence> providers = SimpleServiceLoader.load(CharSequence.class, loader);
 
         assertThat(providers).isEmpty();
     }

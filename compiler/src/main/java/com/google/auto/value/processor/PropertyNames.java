@@ -15,7 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.base.Strings;
+import java.util.Objects;
 
 /** Helper methods to create property names. */
 class PropertyNames {
@@ -46,7 +46,7 @@ class PropertyNames {
      * Returns the {@code propertyName} with its first character in lower case.
      */
     static String decapitalizeNormally(String propertyName) {
-        if (Strings.isNullOrEmpty(propertyName)) {
+        if (Objects.toString(propertyName, "").isEmpty()) {
             return propertyName;
         }
         return Character.toLowerCase(propertyName.charAt(0)) + propertyName.substring(1);

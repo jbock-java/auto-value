@@ -16,10 +16,7 @@
 package com.google.auto.value.processor;
 
 import com.google.auto.common.MoreElements;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+import com.google.auto.value.base.Util;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -29,8 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.auto.value.base.Util.difference;
 import static com.google.auto.value.base.Util.inverse;
-import static com.google.common.collect.Sets.difference;
 
 class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<ExecutableElement> {
     private final ErrorReporter errorReporter;
@@ -49,7 +46,7 @@ class BuilderMethodClassifierForAutoValue extends BuilderMethodClassifier<Execut
         this.errorReporter = errorReporter;
         this.getterToPropertyName = getterToPropertyName;
         this.getterNameToGetter =
-                Maps.uniqueIndex(getterToPropertyName.keySet(), m -> m.getSimpleName().toString());
+                Util.uniqueIndex(getterToPropertyName.keySet(), m -> m.getSimpleName().toString());
         this.builtType = builtType;
     }
 

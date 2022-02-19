@@ -15,20 +15,19 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceConfigurationError;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -47,11 +46,11 @@ public final class SimpleServiceLoader {
     private SimpleServiceLoader() {
     }
 
-    public static <T> ImmutableList<T> load(Class<? extends T> service, ClassLoader loader) {
+    public static <T> List<T> load(Class<? extends T> service, ClassLoader loader) {
         return load(service, loader, Optional.empty());
     }
 
-    public static <T> ImmutableList<T> load(
+    public static <T> List<T> load(
             Class<? extends T> service, ClassLoader loader, Optional<Pattern> allowedMissingClasses) {
         String resourceName = "META-INF/services/" + service.getName();
         List<URL> resourceUrls;
@@ -60,7 +59,7 @@ public final class SimpleServiceLoader {
         } catch (IOException e) {
             throw new ServiceConfigurationError("Could not look up " + resourceName, e);
         }
-        ImmutableSet.Builder<Class<? extends T>> providerClasses = ImmutableSet.builder();
+        Set<Class<? extends T>> providerClasses = new LinkedHashSet<>();
         for (URL resourceUrl : resourceUrls) {
             try {
                 providerClasses.addAll(
@@ -69,8 +68,8 @@ public final class SimpleServiceLoader {
                 throw new ServiceConfigurationError("Could not read " + resourceUrl, e);
             }
         }
-        ImmutableList.Builder<T> providers = ImmutableList.builder();
-        for (Class<? extends T> providerClass : providerClasses.build()) {
+        List<T> providers = new ArrayList<>();
+        for (Class<? extends T> providerClass : providerClasses) {
             try {
                 T provider = providerClass.getConstructor().newInstance();
                 providers.add(provider);
@@ -78,16 +77,16 @@ public final class SimpleServiceLoader {
                 throw new ServiceConfigurationError("Could not construct " + providerClass.getName(), e);
             }
         }
-        return providers.build();
+        return providers;
     }
 
-    private static <T> ImmutableSet<Class<? extends T>> providerClassesFromUrl(
+    private static <T> Set<Class<? extends T>> providerClassesFromUrl(
             URL resourceUrl,
             Class<? extends T> service,
             ClassLoader loader,
             Optional<Pattern> allowedMissingClasses)
             throws IOException {
-        ImmutableSet.Builder<Class<? extends T>> providerClasses = ImmutableSet.builder();
+        Set<Class<? extends T>> providerClasses = new LinkedHashSet<>();
         URLConnection urlConnection = resourceUrl.openConnection();
         urlConnection.setUseCaches(false);
         List<String> lines;
@@ -98,7 +97,7 @@ public final class SimpleServiceLoader {
         List<String> classNames =
                 lines.stream()
                         .map(SimpleServiceLoader::parseClassName)
-                        .flatMap(Streams::stream)
+                        .flatMap(Optional::stream)
                         .collect(toList());
         for (String className : classNames) {
             Class<?> c;
@@ -117,7 +116,7 @@ public final class SimpleServiceLoader {
             }
             providerClasses.add(c.asSubclass(service));
         }
-        return providerClasses.build();
+        return providerClasses;
     }
 
     private static Optional<String> parseClassName(String line) {

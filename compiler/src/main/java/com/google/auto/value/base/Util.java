@@ -218,4 +218,16 @@ public final class Util {
     });
     return result;
   }
+
+  public static <K, V> Map<K, V> uniqueIndex(
+          Collection<V> values, Function<? super V, K> keyFunction) {
+    HashMap<K, V> result = new HashMap<>(values.size());
+    for (V v : values) {
+      K k = keyFunction.apply(v);
+      if ((result.put(k, v) != null)) {
+        throw new IllegalArgumentException("Duplicate value for key: " + k);
+      }
+    }
+    return result;
+  }
 }

@@ -15,8 +15,7 @@
  */
 package com.google.auto.value.processor;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
+import com.google.auto.value.base.Util;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -27,6 +26,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.SimpleAnnotationValueVisitor8;
 import javax.tools.Diagnostic;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -172,8 +172,8 @@ final class AnnotationOutput {
         @Override
         public Void visitAnnotation(AnnotationMirror a, StringBuilder sb) {
             sb.append('@').append(TypeEncoder.encode(a.getAnnotationType()));
-            ImmutableMap<ExecutableElement, AnnotationValue> map =
-                    ImmutableMap.copyOf(a.getElementValues());
+            Map<ExecutableElement, AnnotationValue> map =
+                    new LinkedHashMap<>(a.getElementValues());
             if (!map.isEmpty()) {
                 sb.append('(');
                 Optional<AnnotationValue> shortForm = shortForm(map);
@@ -196,27 +196,11 @@ final class AnnotationOutput {
         private static Optional<AnnotationValue> shortForm(
                 Map<ExecutableElement, AnnotationValue> values) {
             if (values.size() == 1
-                    && Iterables.getOnlyElement(values.keySet()).getSimpleName().contentEquals("value")) {
-                return Optional.of(Iterables.getOnlyElement(values.values()));
+                    && Util.getOnlyElement(values.keySet()).getSimpleName().contentEquals("value")) {
+                return Optional.of(Util.getOnlyElement(values.values()));
             }
             return Optional.empty();
         }
-    }
-
-    /**
-     * Returns a string representation of the given annotation value, suitable for inclusion in a Java
-     * source file as the initializer of a variable of the appropriate type.
-     */
-    static String sourceFormForInitializer(
-            AnnotationValue annotationValue,
-            ProcessingEnvironment processingEnv,
-            String memberName,
-            Element errorContext) {
-        SourceFormVisitor visitor =
-                new InitializerSourceFormVisitor(processingEnv, memberName, errorContext);
-        StringBuilder sb = new StringBuilder();
-        visitor.visit(annotationValue, sb);
-        return sb.toString();
     }
 
     /**
