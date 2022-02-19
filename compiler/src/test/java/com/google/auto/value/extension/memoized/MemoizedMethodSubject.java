@@ -41,8 +41,8 @@ final class MemoizedMethodSubject extends Subject {
         JavaFileObject file =
                 JavaFileObjects.forSourceLines(
                         "Value",
-                        "import com.google.auto.value.AutoValue;",
-                        "import com.google.auto.value.extension.memoized.Memoized;",
+                        "import io.jbock.auto.value.AutoValue;",
+                        "import io.jbock.auto.value.extension.memoized.Memoized;",
                         "",
                         "@AutoValue abstract class Value {",
                         "  abstract String string();",

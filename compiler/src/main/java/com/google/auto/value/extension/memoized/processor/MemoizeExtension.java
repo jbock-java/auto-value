@@ -82,7 +82,7 @@ import static javax.lang.model.util.ElementFilter.methodsIn;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 /**
- * An extension that implements the {@link com.google.auto.value.extension.memoized.Memoized}
+ * An extension that implements the {@link io.jbock.auto.value.extension.memoized.Memoized}
  * contract.
  */
 public final class MemoizeExtension extends AutoValueExtension {
@@ -387,7 +387,7 @@ public final class MemoizeExtension extends AutoValueExtension {
 
         /**
          * Determines the required fields and overriding method for a {@link
-         * com.google.auto.value.extension.memoized.Memoized @Memoized} method.
+         * io.jbock.auto.value.extension.memoized.Memoized @Memoized} method.
          */
         private final class MethodOverrider {
             private final ExecutableElement method;

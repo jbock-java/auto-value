@@ -15,12 +15,12 @@
  */
 package com.google.auto.value.extension.memoized;
 
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
+import io.jbock.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.MemoizedTest.HashCodeEqualsOptimization.EqualsCounter;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.Immutable;
 import com.google.errorprone.annotations.ImmutableTypeParameter;
+import io.jbock.auto.value.extension.memoized.Memoized;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,18 +53,6 @@ public class MemoizedTest {
         @Memoized
         boolean getMemoizedNative0() {
             return getNative0();
-        }
-    }
-
-    @AutoValue
-    @CopyAnnotations
-    @javax.annotation.Nullable
-    abstract static class ValueWithCopyAnnotations {
-        abstract boolean getNative();
-
-        @Memoized
-        boolean getMemoizedNative() {
-            return getNative();
         }
     }
 
@@ -350,25 +338,6 @@ public class MemoizedTest {
         assertThat(value.getMemoizedNative()).isTrue();
         assertThat(value.getNative0()).isFalse();
         assertThat(value.getMemoizedNative0()).isFalse();
-    }
-
-    @Test
-    public void copyAnnotations() {
-        ValueWithCopyAnnotations valueWithCopyAnnotations =
-                new AutoValue_MemoizedTest_ValueWithCopyAnnotations(true);
-        ValueWithoutCopyAnnotations valueWithoutCopyAnnotations =
-                new AutoValue_MemoizedTest_ValueWithoutCopyAnnotations(true);
-
-        assertThat(
-                valueWithCopyAnnotations
-                        .getClass()
-                        .isAnnotationPresent(javax.annotation.Nullable.class))
-                .isTrue();
-        assertThat(
-                valueWithoutCopyAnnotations
-                        .getClass()
-                        .isAnnotationPresent(javax.annotation.Nullable.class))
-                .isFalse();
     }
 
     @Test

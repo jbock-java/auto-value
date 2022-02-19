@@ -17,5 +17,5 @@ package com.google.auto.value.extension.memoized.processor;
 
 /** Names of classes that are referenced in the processor/extension. */
 final class ClassNames {
-    static final String MEMOIZED_NAME = "com.google.auto.value.extension.memoized.Memoized";
+    static final String MEMOIZED_NAME = "io.jbock.auto.value.extension.memoized.Memoized";
 }

@@ -74,7 +74,7 @@ public class MemoizedValidationTest {
                         "test.EnclosingClass",
                         "package test;",
                         "",
-                        "import com.google.auto.value.extension.memoized.Memoized;",
+                        "import io.jbock.auto.value.extension.memoized.Memoized;",
                         "",
                         "abstract class EnclosingClass {",
                         "  @Memoized",

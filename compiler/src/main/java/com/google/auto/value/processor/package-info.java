@@ -13,6 +13,6 @@
  */
 /**
  * This package contains the annotation processor that implements the {@link
- * com.google.auto.value.AutoValue} API.
+ * io.jbock.auto.value.AutoValue} API.
  */
 package com.google.auto.value.processor;

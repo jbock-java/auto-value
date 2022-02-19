@@ -152,7 +152,7 @@ public class PropertyAnnotationsTest {
         JavaFileObject build() {
             ImmutableList<String> list =
                     ImmutableList.<String>builder()
-                            .add("package foo.bar;", "", "import com.google.auto.value.AutoValue;")
+                            .add("package foo.bar;", "", "import io.jbock.auto.value.AutoValue;")
                             .addAll(imports)
                             .add("", "@AutoValue", "public abstract class Baz {")
                             .addAll(annotations)
