@@ -19,10 +19,9 @@ if ! git pull origin $(git rev-parse --abbrev-ref HEAD); then
   die "pull failed"
 fi
 
-#if ! ./gradlew clean -Pversion=${VERSION} auto-value-annotations:publish; then
-#  die "build failed"
-#fi
-
+if ! ./gradlew clean -Pversion=${VERSION} auto-value-annotations:publish; then
+  die "build failed"
+fi
 
 if ! ./gradlew clean -Pversion=${VERSION} compiler:publish; then
   die "build failed"
