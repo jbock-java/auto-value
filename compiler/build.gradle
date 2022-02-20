@@ -104,7 +104,6 @@ publishing {
             project.shadow.component(publication)
             artifactId = 'auto-value'
 
-            artifact jar
             artifact sourcesJar
             artifact javadocJar
 
