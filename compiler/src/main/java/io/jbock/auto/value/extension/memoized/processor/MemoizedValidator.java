@@ -64,7 +64,7 @@ public final class MemoizedValidator extends AbstractProcessor {
     private static boolean isAutoValue(Element element) {
         return element.getAnnotationMirrors().stream()
                 .map(annotation -> MoreTypes.asTypeElement(annotation.getAnnotationType()))
-                .anyMatch(type -> type.getQualifiedName().contentEquals("com.google.auto.value.AutoValue"));
+                .anyMatch(type -> type.getQualifiedName().contentEquals("io.jbock.auto.value.AutoValue"));
     }
 
     static Optional<AnnotationMirror> getAnnotationMirror(Element element, String annotationName) {
