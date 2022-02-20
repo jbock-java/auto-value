@@ -51,7 +51,7 @@ shadowJar {
 }
 
 dependencies {
-    def annotations = project(':auto-value-annotations')
+    def annotations = 'io.github.jbock-java:auto-value-annotations:1.8.2.1'
     shadow(annotations)
     implementation('io.github.jbock-java:auto-common:1.2.3')
     implementation('io.github.jbock-java:javapoet:1.15')
