@@ -150,7 +150,7 @@ public final class MemoizeExtension extends AutoValueExtension {
                             .addModifiers(isFinal ? FINAL : ABSTRACT)
                             .addMethod(constructor());
             generated.addAnnotation(AnnotationSpec.builder(Generated.class)
-                    .addMember("value", MemoizeExtension.class.getCanonicalName())
+                    .addMember("value", "$S", MemoizeExtension.class.getCanonicalName())
                     .build());
             for (ExecutableElement method : memoizedMethods(context)) {
                 MethodOverrider methodOverrider = new MethodOverrider(method);
